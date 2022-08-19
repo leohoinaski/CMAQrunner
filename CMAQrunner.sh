@@ -33,7 +33,7 @@
 #
 #
 #---------------------------------- Inputs --------------------------------------------
-
+CDIR=$PWD
 CMAQ_HOME=/media/leohoinaski/HDD/CMAQ_REPO
 GDNAM=SC_2019
 STARTDAY=2019-06-02
@@ -81,7 +81,7 @@ do
   STJD=`date -ud "${YYYYMMDD}" +%j`
   EDJD=`date -ud "${YYYYMMDD}" +%j`
   echo "DAY $YYYYJJJ"
-  python3 shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi}
+  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi}
   echo '----------------------------------Running MCIP---------------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  >&! mcip.log; cd -
 
@@ -94,20 +94,20 @@ do
     if [ ! -f "${wrf_dir}/wrfout" ]; then
       ln -sf ${wrf_dir}/wrfout_d02_'+YYYYMMDD+'_00:00:00 ${wrf_dir}/wrfout
     fi
-    python3 shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+    python3 ${CDIR}/shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
     cd ${MEGANHome}/prepmegan4cmaq_2014-06-02 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
     echo 'Running txt2ioapi'${pwd}
     cd ${MEGANHome}/MEGANv2.10/work && ./run.txt2ioapi.v210.csh >&! txtioapi.log; cd -
     echo 'Fixing txt2ioapi files'
-    python3 MEGAN2_fixLAI_netCDF.py ${MEGANHome}  
+    python3 ${CDIR}/MEGAN2_fixLAI_netCDF.py ${MEGANHome}  
     mv ${MEGANHome}/inputs/LAIS46.SC_2019.fixed.ncf ${MEGANHome}/inputs/LAIS46.SC_2019.ncf
     echo '---------------------------------Running ICON--------------------------------'
-    cd ${CMAQ_HOME}/PREP/icon/scripts &&./run_icon.csh >&! icon.log &
+    cd ${CMAQ_HOME}/PREP/icon/scripts &&./run_icon.csh >&! icon.log; cd - &
     echo '---------------------------------Running BCON--------------------------------'
-    cd ${CMAQ_HOME}/PREP/bcon/scripts &&./run_bcon.csh >&! bcon.log
+    cd ${CMAQ_HOME}/PREP/bcon/scripts &&./run_bcon.csh >&! bcon.log; cd -
     if [ ! -f "${CMAQ_HOME}/PREP/Spatial-Allocator/data/ocean_file_${GDNAM}.ncf" ]; then
       echo '--------------------------Running OCEAN - SURFZONE-------------------------'
-      python3 hoinaskiSURFZONE.py ${CMAQ_HOME}/PREP/Spatial-Allocator ${GDNAM} ${mcipPath} 
+      python3 ${CDIR}/hoinaskiSURFZONE.py ${CMAQ_HOME}/PREP/Spatial-Allocator ${GDNAM} ${mcipPath} 
       ln -sf ${CMAQ_HOME}/PREP/Spatial-Allocator/data/ocean_file_${GDNAM}.ncf ${CMAQ_HOME}/data/inputs/${GDNAM}/OCEAN
     else
       echo 'You already have the OCEAN file'
@@ -118,19 +118,19 @@ do
 
   echo '------------------------------Running BRAVES_database--------------------------'
   # Check shRunnerBRAVES_database.py for more input configurations
-  cd ${BRAVEShome} && ./shRunnerBRAVES_database.py ${BRAVEShome} ${mcipPath} ${GDNAM} ${YYYY} ${runOrnotRoadDens} ${runOrnotRoadEmiss} ${runOrnotMergeRoadEmiss} ${runOrnotBRAVES2netCDF} ${runOrnotCMAQemiss} &
+  python3 ${CDIR}/shRunnerBRAVES_database.py ${BRAVEShome} ${mcipPath} ${GDNAM} ${YYYY} ${runOrnotRoadDens} ${runOrnotRoadEmiss} ${runOrnotMergeRoadEmiss} ${runOrnotBRAVES2netCDF} ${runOrnotCMAQemiss} &
  
   echo '# -----------------------------Running IND_Inventory---------------------------'
-  cd ${INDinventoryPath} && ./shRunnerIND_inventory.py ${INDinventoryPath} ${mcipPath} ${GDNAM} &
+  python3 ${CDIR}/shRunnerIND_inventory.py ${INDinventoryPath} ${mcipPath} ${GDNAM} &
 
   echo '---------------------------------Running finn2cmaq-----------------------------'
   cd ${finn2cmaqPath} && ./scripts/get_nrt.py ${YYYYMMDD}; cd -
   cd ${finn2cmaqPath} && ./scripts/txt2daily.py ${mcipPath}/GRIDDESC ${GDNAM} ${YYYY} ${finn2cmaqPath}/www.acom.ucar.edu/Data/fire/data/finn1/FINNv1.5_2019.GEOSCHEM.tar.gz ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc; cd -
-  cd ${finn2cmaqPath} && ./scripts/daily2hourly3d.py -d ${STARTDAY} ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc ${finn2cmaqPath}/hourly/${YYYY}/${MM}/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYY}-${MM}-${DD}.nc & 
+  cd ${finn2cmaqPath} && ./scripts/daily2hourly3d.py -d ${STARTDAY} ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc ${finn2cmaqPath}/hourly/${YYYY}/${MM}/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYY}-${MM}-${DD}.nc; cd - & 
 
   echo '----------------------------------Running MEGAN--------------------------------'
   # Check shRunnerMEGAN.py for more input configurations
-  python3 shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+  python3 ${CDIR}/shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
   cd ${MEGANHome}/MEGANv2.10/work && ./run.met2mgn.v210.csh >&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv2.10/work && ./run.emproc.v210.csh >&! emproc.log; cd -
   cd ${MEGANHome}/MEGANv2.10/work && ./run.mgn2mech.v210.csh >&! mgn2mech.log; cd -
@@ -154,7 +154,7 @@ do
   fi
 
   echo '-----------------------------------Running CCTM--------------------------------'
-  cd ${CMAQ_HOME}/CCTM/scripts && ./run_cctm.csh; cd -
+  cd ${CMAQ_HOME}/CCTM/scripts && ./run_cctm.csh
   NEW_START=FALSE
 done
 

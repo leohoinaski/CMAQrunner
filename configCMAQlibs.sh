@@ -1,9 +1,12 @@
-# Shell script para instalar CMAQ e preprocessadores
+#!/bin/bash
+
+#========================================================
+# Shell script para instalar pacotes para rodar o CMAQ
 #
 # Authores: Leonardo Hoinaski - leonardo.hoinaski@ufsc.br
-#	    Euclides Martins  - euclides.edson.martins@gmail.com 	
+#	    	
 # Last update: 06-11-2020
-#------------------------------------------------------
+#--------------------------------------------------------
 export CDIR=$PWD
 echo 'Starting shell scritp for compiling CMAQ'
 echo 'Developer: Leonardo Hoinaski'

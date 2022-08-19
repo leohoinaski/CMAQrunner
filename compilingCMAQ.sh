@@ -1,13 +1,18 @@
-=================================CMAQ============================================
-sudo apt-get install -y csh
-#INSTALLING CMAQ
+#!/bin/bash
 
+#=============================================================================
+# Download CMAQv5.3.2 from github = https://github.com/USEPA/CMAQ/tree/5.3.2
+# Cloning CMAQ to server
+git clone -b  https://github.com/USEPA/CMAQ.git
+mv CMAQ CMAQ_REPO
+cd CMAQ_REPO
+git checkout bf2630f2b31acad8f9b31e07981c544016b06a0d
 export CMAQ_HOME=$PWD
+
 sudo apt-get install -y git
 sudo apt-get install -y csh
 
-# Cloning CMAQ to server
-#it clone -b  https://github.com/USEPA/CMAQ.git
+
 CMAQ_REPO=${CMAQ_HOME}
 
 cd ${CMAQ_REPO}

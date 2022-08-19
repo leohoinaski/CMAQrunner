@@ -5,20 +5,15 @@ Created on Thu Aug  4 18:05:07 2022
 
 @author: leohoinaski
 """
-
-#%%============================================================================
-#from roadDensity_v1 import roadDensity
-from parallelRoadDensity_v2 import roadDensityMCIP
-from roadEmiss_v1 import roadEmiss
-from mergeRoadEmiss_v1 import mergeRoadEmiss
-from BRAVES2netCDF_v1 import BRAVES2netCDF
-from BRAVES_temporalDisag_v1 import BRAVES_temporalDisagMCIP
-from netCDFcreator_v1 import createNETCDFtemporalfromNC
 import os
 import numpy as np
 import netCDF4 as nc
 import datetime
 import argparse
+#from roadDensity_v1 import roadDensity
+import sys
+
+#%%============================================================================
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -39,6 +34,16 @@ if __name__ == '__main__':
     mcipPath = args.mcipPath
     year = np.array(args.YEAR)
     rootPath = args.BRAVEShome
+     
+    # adding Folder_2 to the system path
+    sys.path.insert(0, rootPath)
+    from parallelRoadDensity_v2 import roadDensityMCIP
+    from roadEmiss_v1 import roadEmiss
+    from mergeRoadEmiss_v1 import mergeRoadEmiss
+    from BRAVES2netCDF_v1 import BRAVES2netCDF
+    from BRAVES_temporalDisag_v1 import BRAVES_temporalDisagMCIP
+    from netCDFcreator_v1 import createNETCDFtemporalfromNC
+
     runOrnotRoadDens = args.runOrnotRoadDens #1 #0 for no and 1 for yes
     runOrnotRoadEmiss = args.runOrnotRoadEmiss #1 # 0 for no and 1 for yes
     runOrnotMergeRoadEmiss = args.runOrnotMergeRoadEmiss #1 # 0 for no and 1 for yes

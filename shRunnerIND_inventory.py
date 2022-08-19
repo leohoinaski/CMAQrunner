@@ -11,10 +11,9 @@ Created on Thu Aug  4 15:21:28 2022
 import os
 import argparse
 import numpy as np
-from data2CubeData import gridSpecMCIP
 import netCDF4 as nc
 import datetime
-from netCDFcreator import createNETCDFtemporalAndLayered
+import sys
 
 
 if __name__ == '__main__':
@@ -28,6 +27,10 @@ if __name__ == '__main__':
     # Path to functions and BRAVESdatabase_main.py
     rootPath = args.INDinventoryPath
     os.chdir(rootPath)
+
+    sys.path.insert(0, rootPath)
+    from data2CubeData import gridSpecMCIP
+    from netCDFcreator import createNETCDFtemporalAndLayered
     
     # Path to inputs
     inPath = rootPath +'/Inputs'
