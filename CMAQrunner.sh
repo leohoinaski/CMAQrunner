@@ -33,6 +33,7 @@
 #
 #
 #---------------------------------- Inputs --------------------------------------------
+
 CDIR=$PWD
 CMAQ_HOME=/media/leohoinaski/HDD/CMAQ_REPO
 GDNAM=SC_2019
@@ -86,12 +87,13 @@ fi
 for day in {0..1}
 do
   YYYYMMDD=`date -ud "${STARTDAY} +${day}days" +%Y-%m-%d`
+  YYYYMMDDend=`date -ud "${STARTDAY} +${day}days +${1}days " +%Y-%m-%d`
   YYYY=`date -ud "${YYYYMMDD}" +%Y`
   MM=`date -ud "${YYYYMMDD}" +%m`
   DD=`date -ud "${YYYYMMDD}" +%d`
   YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
   STJD=`date -ud "${YYYYMMDD}" +%j`
-  EDJD=`date -ud "${YYYYMMDD}" +%j`
+  EDJD=`date -ud "${YYYYMMDDend}" +%j`
 
   echo "===============>>>>>>>>DAY $YYYYJJJ <<<<<<<<<===============" 
   echo "               >>>>>>>>    LCQAR    <<<<<<<<<               " 
@@ -99,7 +101,7 @@ do
   echo "============================================================"
   echo " "
   
-  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi}
+  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi}
   echo '------------------------Running MCIP------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  >&! mcip.log; cd -
 
@@ -107,7 +109,7 @@ do
     YYYY=`date -ud "${YYYYMMDD}" +%Y`
     YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
     STJD=`date -ud "${YYYYMMDD}" +%j`
-    EDJD=`date -ud "${YYYYMMDD}" +%j`
+    EDJD=`date -ud "${YYYYMMDDend}" +%j`
     echo '---------------------Running PREPMEGAN--------------------'
     if [ ! -f "${wrf_dir}/wrfout" ]; then
       ln -sf ${wrf_dir}/wrfout_d02_'+YYYYMMDD+'_00:00:00 ${wrf_dir}/wrfout

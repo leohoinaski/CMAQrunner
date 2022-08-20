@@ -12,7 +12,6 @@ export CMAQ_HOME=$PWD
 sudo apt-get install -y git
 sudo apt-get install -y csh
 
-
 CMAQ_REPO=${CMAQ_HOME}
 
 cd ${CMAQ_REPO}

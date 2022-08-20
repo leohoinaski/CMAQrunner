@@ -8,7 +8,7 @@ Created on Thu Aug 11 19:02:01 2022
 
 import argparse
 
-def writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD):  
+def writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD,YYYYMMDDend):  
     scriptPath = CMAQHome +'/PREP/mcip/scripts'       
     file1 = open(scriptPath + "/run_mcip.csh","w") 
     file1.write('#! /bin/csh -f')
@@ -34,7 +34,7 @@ def writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD):
     file1.write('\nset LWOUT   = 1')
     file1.write('\nset LUVBOUT = 1')
     file1.write('\nset MCIP_START = '+YYYYMMDD+'-00:00:00.0000')  # [UTC]
-    file1.write('\nset MCIP_END   = '+YYYYMMDD+'-23:00:00.0000')  # [UTC]
+    file1.write('\nset MCIP_END   = '+YYYYMMDDend+'-00:00:00.0000')  # [UTC]
     file1.write('\nset INTVL      = 60 # [min]')
     file1.write('\nset IOFORM = 1')    
     file1.write('\nset BTRIM = 0')
@@ -498,7 +498,7 @@ def writeBCONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD):
     file1.close()
     return file1
 
-def writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi):  
+def writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,YYYYMMDDend,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi):  
     scriptPath = CMAQHome +'/CCTM/scripts'       
     file1 = open(scriptPath + "/run_cctm.csh","w") 
     str1="#!/bin/csh -f\
@@ -576,11 +576,11 @@ def writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,NPCOL,NPROW,NLAYS,NEW_START
 \n#> Set Start and End Days for looping\
 \n setenv NEW_START "+NEW_START+"             #> Set to FALSE for model restart\
 \n set START_DATE = "+'"'+YYYYMMDD+'"'+"     #> beginning date (July 1, 2016)\
-\n set END_DATE   = "+'"'+YYYYMMDD+'"'+"     #> ending date    (July 1, 2016)\
+\n set END_DATE   = "+'"'+YYYYMMDDend+'"'+"     #> ending date    (July 1, 2016)\
 \n\
 \n#> Set Timestepping Parameters\
 \nset STTIME     = 000000            #> beginning GMT time (HHMMSS)\
-\nset NSTEPS     = 230000            #> time duration (HHMMSS) for this run\
+\nset NSTEPS     = 240000            #> time duration (HHMMSS) for this run\
 \nset TSTEP      = 010000            #> output time step interval (HHMMSS)\
 \n\
 \n#> Horizontal domain decomposition\
@@ -1296,6 +1296,7 @@ if __name__ == '__main__':
     parser.add_argument('CMAQHome')
     parser.add_argument('GDNAM')
     parser.add_argument('YYYYMMDD')
+    parser.add_argument('YYYYMMDDend')
     parser.add_argument('NPCOL')
     parser.add_argument('NPROW')
     parser.add_argument('NLAYS')
@@ -1305,13 +1306,14 @@ if __name__ == '__main__':
     CMAQHome = args.CMAQHome
     GDNAM = args.GDNAM
     YYYYMMDD = args.YYYYMMDD
+    YYYYMMDDend = args.YYYYMMDDend
     YYYYMMDDi = args.YYYYMMDDi
     NPCOL = args.NPCOL
     NPROW = args.NPROW
     NLAYS = args.NLAYS
     NEW_START = args.NEW_START
     mcipPath = CMAQHome+'/data/mcip/'+GDNAM
-    writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD)
+    writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD,YYYYMMDDend)
     writeICONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
     writeBCONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
-    writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi)
+    writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,YYYYMMDDend,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi)
