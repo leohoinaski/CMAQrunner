@@ -183,7 +183,7 @@ def writeRunEmproc(MEGANHome,GDNAM,YEAR,STJD):
     file1.write('\nset JD = '+ str(YEAR)+str(STJD).zfill(3))
     file1.write('\nsetenv SDATE $JD')        #start date
     file1.write('\nsetenv STIME 0')
-    file1.write('\nsetenv RLENG 240000')
+    file1.write('\nsetenv RLENG 250000')
     file1.write('\n#####################################################################>')  
     file1.write('\n#####################################################################>')
     file1.write('\n# Set up for MEGAN')
@@ -246,7 +246,7 @@ def writeRunMgn2mech(MEGANHome,GDNAM,YEAR,STJD):
     # Set up time and date to process
     file1.write('\nsetenv SDATE $JD')        #start date
     file1.write('\nsetenv STIME 0')
-    file1.write('\nsetenv RLENG 240000')
+    file1.write('\nsetenv RLENG 250000')
     file1.write('\nsetenv TSTEP 10000')
     #####################################################################>
     # Set up for MECHCONV

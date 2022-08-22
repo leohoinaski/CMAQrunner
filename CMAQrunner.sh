@@ -35,7 +35,7 @@
 #---------------------------------- Inputs --------------------------------------------
 
 CDIR=$PWD
-CMAQ_HOME=/media/leohoinaski/HDD/CMAQ_REPO
+CMAQ_HOME=/home/nobre/CMAQ_REPO
 GDNAM=SC_2019
 STARTDAY=2019-06-02
 NDAYS=2
@@ -55,8 +55,8 @@ INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
 finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
 YYYYMMDDi=`date -ud "${STARTDAY}" +%Y%m%d`
 YYYYJJJi=`date -ud "${STARTDAY}" +%Y%j`
-NPCOL=2 # Define number of processors to use - NPCOL*NPROW
-NPROW=1
+NPCOL=5 # Define number of processors to use - NPCOL*NPROW
+NPROW=5
 NLAYS=32
 NEW_START=TRUE
 
@@ -91,6 +91,8 @@ do
   YYYY=`date -ud "${YYYYMMDD}" +%Y`
   MM=`date -ud "${YYYYMMDD}" +%m`
   DD=`date -ud "${YYYYMMDD}" +%d`
+  MMend=`date -ud "${YYYYMMDDend}" +%m`
+  DDend=`date -ud "${YYYYMMDDend}" +%d`
   YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
   STJD=`date -ud "${YYYYMMDD}" +%j`
   EDJD=`date -ud "${YYYYMMDDend}" +%j`
@@ -146,7 +148,7 @@ do
   echo '------------------------Running finn2cmaq--------------------'
   cd ${finn2cmaqPath} && ./scripts/get_nrt.py ${YYYYMMDD}; cd -
   cd ${finn2cmaqPath} && ./scripts/txt2daily.py ${mcipPath}/GRIDDESC ${GDNAM} ${YYYY} ${finn2cmaqPath}/www.acom.ucar.edu/Data/fire/data/finn1/FINNv1.5_2019.GEOSCHEM.tar.gz ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc; cd -
-  cd ${finn2cmaqPath} && ./scripts/daily2hourly3d.py -d ${STARTDAY} ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc ${finn2cmaqPath}/hourly/${YYYY}/${MM}/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYY}-${MM}-${DD}.nc; cd - & 
+  cd ${finn2cmaqPath} && ./scripts/daily2hourly3d.py -d ${YYYYMMDD} ${finn2cmaqPath}/daily/${YYYY}/FINNv1.5_${YYYYMMDD}.GEOSCHEM.NRT.${GDNAM}.nc ${finn2cmaqPath}/hourly/${YYYY}/${MM}/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYY}-${MM}-${DD}.nc; cd - & 
 
   echo '-------------------------Running MEGAN-----------------------'
   # Check shRunnerMEGAN.py for more input configurations
@@ -162,8 +164,8 @@ do
 
   echo '------------Copying input files to CMAQ input folder---------'
   ln -sf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${CMAQ_HOME}/data/inputs/${GDNAM}/MEGANout
-  ln -sf ${BRAVEShome}/Outputs/${GDNAM}/BRAVESdatabase2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MM}_${DD}_2300.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/BRAVESout
-  ln -sf ${INDinventoryPath}/Outputs/${GDNAM}/IND2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MM}_${DD}_2300.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/INDout
+  ln -sf ${BRAVEShome}/Outputs/${GDNAM}/BRAVESdatabase2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MMend}_${DDend}_0000.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/BRAVESout
+  ln -sf ${INDinventoryPath}/Outputs/${GDNAM}/IND2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MMend}_${DDend}_0000.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/INDout
   ln -sf ${finn2cmaqPath}/hourly/${YYYY}/$MM/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYYMMDD}.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/FINNout
   cd ${CMAQ_HOME}/data/inputs/${GDNAM} 
   echo 'Converting to netCDF3' 
