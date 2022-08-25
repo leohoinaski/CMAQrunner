@@ -3,7 +3,9 @@
 #=============================================================================
 # Download CMAQv5.3.2 from github = https://github.com/USEPA/CMAQ/tree/5.3.2
 # Cloning CMAQ to server
-git clone -b  https://github.com/USEPA/CMAQ.git
+ROOT=/home/lcqar
+cd ${ROOT}
+git clone https://github.com/USEPA/CMAQ.git
 mv CMAQ CMAQ_REPO
 cd CMAQ_REPO
 git checkout bf2630f2b31acad8f9b31e07981c544016b06a0d
