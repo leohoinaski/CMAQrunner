@@ -59,7 +59,11 @@ if __name__ == '__main__':
     roadDensPrefix = fileId+'_'+'MCIPgrid' # grid definition identification
     mcipGRIDDOT2DPath = mcipPath+'/GRIDDOT2D_'+fileId+'.nc'
     mcipMETCRO2Dpath = mcipPath+'/METCRO2D_'+fileId+'.nc'
-    IBGE_CODES = [41,42,43] 
+    IBGE_CODES = [11,12,13,14,15,16,17,
+              21,22,23,24,25,26,27,28,29,
+              31,32,33,35,
+              41,42,43,
+              50,51,52,53] 
     typeEmiss = 'TOTAL' 
     fleetEmiss = 'Total'
 

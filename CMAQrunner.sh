@@ -37,27 +37,17 @@
 CDIR=$PWD
 CMAQ_HOME=/home/nobre/CMAQ_REPO
 GDNAM=SC_2019
-STARTDAY=2019-06-02
-NDAYS=2
-ncols=233
-nrows=178
-runOrnotRoadDens=0
-runOrnotRoadEmiss=0
-runOrnotMergeRoadEmiss=0
-runOrnotBRAVES2netCDF=0
-runOrnotCMAQemiss=1
-
-mcipPath=${CMAQ_HOME}/data/mcip/${GDNAM}
-wrf_dir=${CMAQ_HOME}/data/met/wrf/${GDNAM}
-MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN21
-BRAVEShome=${CMAQ_HOME}/PREP/emis/BRAVES_database
-INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
-finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
-YYYYMMDDi=`date -ud "${STARTDAY}" +%Y%m%d`
-YYYYJJJi=`date -ud "${STARTDAY}" +%Y%j`
-NPCOL=5 # Define number of processors to use - NPCOL*NPROW
+STARTDAY=2019-01-01
+#NDAYS=2 not working yet
+ncols=222
+nrows=191
+#wrf_dir=${CMAQ_HOME}/data/met/wrf/${GDNAM}
+#wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/SC
+wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/BR
+wrfDomain=1 # d01 = 1 and d02 = 2
+NPCOL=7 # Define number of processors to use - NPCOL*NPROW
 NPROW=5
-NLAYS=32
+NLAYS=20 
 NEW_START=TRUE
 
 #==========================================PROCESSING==================================
@@ -74,6 +64,15 @@ echo ' '
 echo 'Simulation starting in '${STARTDAY}
 echo ' '
 
+mcipPath=${CMAQ_HOME}/data/mcip/${GDNAM}
+MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN21
+BRAVEShome=${CMAQ_HOME}/PREP/emis/BRAVES_database
+INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
+finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
+
+YYYYMMDDi=`date -ud "${STARTDAY}" +%Y%m%d`
+YYYYJJJi=`date -ud "${STARTDAY}" +%Y%j`
+
 if [ ! -d "${CMAQ_HOME}/data/inputs" ]; then
   echo "Creating input directory"
   mkdir ${CMAQ_HOME}/data/inputs
@@ -84,7 +83,7 @@ if [ ! -d "${CMAQ_HOME}/data/inputs/${GDNAM}" ]; then
   mkdir ${CMAQ_HOME}/data/inputs/${GDNAM}
 fi
 
-for day in {0..1}
+for day in {0..366}
 do
   YYYYMMDD=`date -ud "${STARTDAY} +${day}days" +%Y-%m-%d`
   YYYYMMDDend=`date -ud "${STARTDAY} +${day}days +${1}days " +%Y-%m-%d`
@@ -96,6 +95,7 @@ do
   YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
   STJD=`date -ud "${YYYYMMDD}" +%j`
   EDJD=`date -ud "${YYYYMMDDend}" +%j`
+  YESTERDAY= `date -ud "'"${YYYYMMDD}-1days"'+" +%Y-%m-%d` #> Convert YYYY-MM-DD to YYYYJJJ\
 
   echo "===============>>>>>>>>DAY $YYYYJJJ <<<<<<<<<===============" 
   echo "               >>>>>>>>    LCQAR    <<<<<<<<<               " 
@@ -103,11 +103,16 @@ do
   echo "============================================================"
   echo " "
   
-  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi}
+  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain}
   echo '------------------------Running MCIP------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  >&! mcip.log; cd -
 
   if test ${day} -lt 1 ;then
+    runOrnotRoadDens=1 # 0 if you already have the roadDensity files
+    runOrnotRoadEmiss=1 # 0 if you already have the roadEmiss files
+    runOrnotMergeRoadEmiss=1 # 0 if you already have the mergeRoadEmiss files
+    runOrnotBRAVES2netCDF=1 # 0 if you already have the annual netCDF files from BRAVES
+    runOrnotCMAQemiss=1
     YYYY=`date -ud "${YYYYMMDD}" +%Y`
     YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
     STJD=`date -ud "${YYYYMMDD}" +%j`
@@ -140,7 +145,7 @@ do
 
   echo '---------------------Running BRAVES_database-----------------'
   # Check shRunnerBRAVES_database.py for more input configurations
-  python3 ${CDIR}/shRunnerBRAVES_database.py ${BRAVEShome} ${mcipPath} ${GDNAM} ${YYYY} ${runOrnotRoadDens} ${runOrnotRoadEmiss} ${runOrnotMergeRoadEmiss} ${runOrnotBRAVES2netCDF} ${runOrnotCMAQemiss} &
+  python3 ${CDIR}/shRunnerBRAVES_database.py ${BRAVEShome} ${mcipPath} ${GDNAM} ${YYYY} ${runOrnotRoadDens} ${runOrnotRoadEmiss} ${runOrnotMergeRoadEmiss} ${runOrnotBRAVES2netCDF} ${runOrnotCMAQemiss}
  
   echo '# --------------------Running IND_Inventory------------------'
   python3 ${CDIR}/shRunnerIND_inventory.py ${INDinventoryPath} ${mcipPath} ${GDNAM} &
@@ -178,6 +183,11 @@ do
   echo '-------------------------Running CCTM------------------------'
   cd ${CMAQ_HOME}/CCTM/scripts && ./run_cctm.csh
   NEW_START=FALSE
+  runOrnotRoadDens=0
+  runOrnotRoadEmiss=0
+  runOrnotMergeRoadEmiss=0
+  runOrnotBRAVES2netCDF=0
+  runOrnotCMAQemiss=1
 done
 
 

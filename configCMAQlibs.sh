@@ -159,3 +159,5 @@ cd ..
 sudo make
 
 
+sudo apt-get install libgfortran5
+sudo apt-get -y install nco 
