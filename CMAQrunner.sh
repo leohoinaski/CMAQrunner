@@ -35,8 +35,8 @@
 #---------------------------------- Inputs --------------------------------------------
 
 CDIR=$PWD
-CMAQ_HOME=/home/nobre/CMAQ_REPO
-GDNAM=SC_2019
+CMAQ_HOME=/home/lcqar/CMAQ_REPO
+GDNAM=BR_2019
 STARTDAY=2019-01-01
 #NDAYS=2 not working yet
 ncols=222
@@ -47,7 +47,7 @@ wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/BR
 wrfDomain=1 # d01 = 1 and d02 = 2
 NPCOL=7 # Define number of processors to use - NPCOL*NPROW
 NPROW=5
-NLAYS=20 
+NLAYS=20
 NEW_START=TRUE
 
 #==========================================PROCESSING==================================
@@ -83,7 +83,7 @@ if [ ! -d "${CMAQ_HOME}/data/inputs/${GDNAM}" ]; then
   mkdir ${CMAQ_HOME}/data/inputs/${GDNAM}
 fi
 
-for day in {0..366}
+for day in {0..1}
 do
   YYYYMMDD=`date -ud "${STARTDAY} +${day}days" +%Y-%m-%d`
   YYYYMMDDend=`date -ud "${STARTDAY} +${day}days +${1}days " +%Y-%m-%d`
@@ -95,17 +95,19 @@ do
   YYYYJJJ=`date -ud "${YYYYMMDD}" +%Y%j`
   STJD=`date -ud "${YYYYMMDD}" +%j`
   EDJD=`date -ud "${YYYYMMDDend}" +%j`
-  YESTERDAY= `date -ud "'"${YYYYMMDD}-1days"'+" +%Y-%m-%d` #> Convert YYYY-MM-DD to YYYYJJJ\
+  YESTERDAY=`date -ud "${STARTDAY} 1 day ago " +%Y-%m-%d`
+
+
 
   echo "===============>>>>>>>>DAY $YYYYJJJ <<<<<<<<<===============" 
   echo "               >>>>>>>>    LCQAR    <<<<<<<<<               " 
   echo "               >>>>>>>>    UFSC     <<<<<<<<<               " 
   echo "============================================================"
   echo " "
-  
+  echo ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain} 
   python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain}
   echo '------------------------Running MCIP------------------------'
-  cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  >&! mcip.log; cd -
+  cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  #>&! mcip.log; cd -
 
   if test ${day} -lt 1 ;then
     runOrnotRoadDens=1 # 0 if you already have the roadDensity files
