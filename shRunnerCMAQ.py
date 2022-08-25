@@ -8,7 +8,7 @@ Created on Thu Aug 11 19:02:01 2022
 
 import argparse
 
-def writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD,YYYYMMDDend):  
+def writeMCIPscript(CMAQHome,wrf_dir,GDNAM,YYYYMMDD,YYYYMMDDend,YESTERDAY,wrfDomain):  
     scriptPath = CMAQHome +'/PREP/mcip/scripts'       
     file1 = open(scriptPath + "/run_mcip.csh","w") 
     file1.write('#! /bin/csh -f')
@@ -21,15 +21,15 @@ def writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD,YYYYMMDDend):
     file1.write('\nset CoordName  = Mercator')    # 16-character maximum
     file1.write('\nset GridName   = '+GDNAM)        # 16-character maximum
     file1.write('\nset DataPath   = $CMAQ_DATA')
-    file1.write('\nset InMetDir   = $DataPath/met/wrf/$GridName')
-    file1.write('\nset InGeoDir   = $DataPath/met/wrf/$GridName')
+    file1.write('\nset InMetDir   = '+wrf_dir)
+    file1.write('\nset InGeoDir   = '+wrf_dir)
     file1.write('\nset OutDir     = $DataPath/mcip/$GridName')
     file1.write('\nset ProgDir    = $CMAQ_HOME/PREP/mcip/src')
     file1.write('\nset WorkDir    = $OutDir')
-    file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d02_'+YYYYMMDD+'_00:00:00 )')
+    file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d0'+wrfDomain+'_'+YESTERDAY+'_00:00:00 )')
     #file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d02_2019-06-01_00:00:00 )')
     file1.write('\nset IfGeo      = "T"')
-    file1.write('\nset InGeoFile  = $InGeoDir/geo_em.d02.nc')
+    file1.write('\nset InGeoFile  = $InGeoDir/geo_em.d0'+wrfDomain+'.nc')
     file1.write('\nset LPV     = 1')
     file1.write('\nset LWOUT   = 1')
     file1.write('\nset LUVBOUT = 1')
@@ -1294,6 +1294,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', default=0, action='count')
     parser.add_argument('CMAQHome')
+    parser.add_argument('wrf_dir')
     parser.add_argument('GDNAM')
     parser.add_argument('YYYYMMDD')
     parser.add_argument('YYYYMMDDend')
@@ -1302,8 +1303,11 @@ if __name__ == '__main__':
     parser.add_argument('NLAYS')
     parser.add_argument('NEW_START')
     parser.add_argument('YYYYMMDDi')
+    parser.add_argument('YESTERDAY')
+    parser.add_argument('wrfDomain')
     args = parser.parse_args()
     CMAQHome = args.CMAQHome
+    wrf_dir = args.wrf_dir
     GDNAM = args.GDNAM
     YYYYMMDD = args.YYYYMMDD
     YYYYMMDDend = args.YYYYMMDDend
@@ -1312,8 +1316,10 @@ if __name__ == '__main__':
     NPROW = args.NPROW
     NLAYS = args.NLAYS
     NEW_START = args.NEW_START
+    YESTERDAY = args.YESTERDAY
+    wrfDomain = args.wrfDomain
     mcipPath = CMAQHome+'/data/mcip/'+GDNAM
-    writeMCIPscript(CMAQHome,GDNAM,YYYYMMDD,YYYYMMDDend)
+    writeMCIPscript(CMAQHome,wrf_dir,GDNAM,YYYYMMDD,YYYYMMDDend,YESTERDAY,wrfDomain)
     writeICONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
     writeBCONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
     writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,YYYYMMDDend,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi)

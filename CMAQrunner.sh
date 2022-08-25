@@ -103,7 +103,7 @@ do
   echo "============================================================"
   echo " "
   
-  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain}
+  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain}
   echo '------------------------Running MCIP------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh  >&! mcip.log; cd -
 
