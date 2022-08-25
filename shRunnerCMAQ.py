@@ -26,7 +26,7 @@ def writeMCIPscript(CMAQHome,wrf_dir,GDNAM,YYYYMMDD,YYYYMMDDend,YESTERDAY,wrfDom
     file1.write('\nset OutDir     = $DataPath/mcip/$GridName')
     file1.write('\nset ProgDir    = $CMAQ_HOME/PREP/mcip/src')
     file1.write('\nset WorkDir    = $OutDir')
-    file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d0'+wrfDomain+'_'+YESTERDAY+'_00:00:00 )')
+    file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d0'+wrfDomain+'_'+YESTERDAY+'_18:00:00 )')
     #file1.write('\nset InMetFiles = ( $InMetDir/wrfout_d02_2019-06-01_00:00:00 )')
     file1.write('\nset IfGeo      = "T"')
     file1.write('\nset InGeoFile  = $InGeoDir/geo_em.d0'+wrfDomain+'.nc')
