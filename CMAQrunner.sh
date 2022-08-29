@@ -121,6 +121,10 @@ do
     if [ ! -f "${wrf_dir}/wrfout" ]; then
       ln -sf ${wrf_dir}/wrfout_d01_'+YYYYMMDD+'_18:00:00 ${wrf_dir}/wrfout
     fi
+
+    echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
+    cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv2.10/work/GRIDDESC
+
     python3 ${CDIR}/shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
     #cd ${MEGANHome}/prepmegan4cmaq_2014-06-02 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
     echo 'Running txt2ioapi'${pwd}
