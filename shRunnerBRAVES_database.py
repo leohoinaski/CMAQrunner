@@ -21,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('BRAVEShome')
     parser.add_argument('mcipPath')
     parser.add_argument('GDNAM')
-    parser.add_argument('YEAR', type=int)
+    parser.add_argument('YEAR')
     parser.add_argument('runOrnotRoadDens', type=int)
     parser.add_argument('runOrnotRoadEmiss', type=int)
     parser.add_argument('runOrnotMergeRoadEmiss', type=int)
@@ -32,7 +32,8 @@ if __name__ == '__main__':
     # Shell inputs
     fileId = args.GDNAM
     mcipPath = args.mcipPath
-    year = np.array(args.YEAR)
+    year = np.array([np.int32(args.YEAR)])
+    print('Running years = '+ str(year))
     rootPath = args.BRAVEShome
      
     # adding Folder_2 to the system path
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     
     # Running
     os.chdir(rootPath)
-    file = 'BRAVESdatabaseAnnual_'+fileId+'_'+typeEmiss+'_'+fleetEmiss+'_'+fileId+'_MCIPgrid_'+str(year)+'.nc' # Define the files to disaggregate
+    file = 'BRAVESdatabaseAnnual_'+fileId+'_'+typeEmiss+'_'+fleetEmiss+'_'+fileId+'_MCIPgrid_'+str(year[0])+'.nc' # Define the files to disaggregate
 
     if os.path.isdir(outPath)==0:
         os.mkdir(outPath)

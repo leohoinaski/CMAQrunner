@@ -155,7 +155,7 @@ def writeRunMet2mgn(MEGANHome,GDNAM,YEAR,STJD,EDJD,mcipPath):
     file1.close()
     return MEGANHome 
 
-def writeRunEmproc(MEGANHome,GDNAM,YEAR,STJD):  
+def writeRunEmproc(MEGANHome,mcipPath,GDNAM,YEAR,STJD):  
     file1 = open(MEGANHome+"/MEGANv2.10/work/run.emproc.v210.csh","w") 
     file1.write('#! /bin/csh -f')
     file1.write('\n#')    
@@ -192,7 +192,7 @@ def writeRunEmproc(MEGANHome,GDNAM,YEAR,STJD):
     file1.write('\nsetenv ONLN_DT     Y')       # Use online daily average temperature   
     file1.write('\nsetenv ONLN_DS     Y ')      # Use online daily average solar radiation    
     file1.write('\n# Grid definition')
-    file1.write('\nsetenv GRIDDESC $MGNRUN/GRIDDESC')
+    file1.write('\nsetenv GRIDDESC GRIDDESC')
     file1.write('\nsetenv GDNAM3D '+ GDNAM)    
     file1.write('\n# EFMAPS')
     file1.write('\nsetenv EFMAPS $INPDIR/EFMAPS.${dom}.ncf')   
@@ -289,7 +289,7 @@ def writeRunMgn2mech(MEGANHome,GDNAM,YEAR,STJD):
     file1.close()
     return MEGANHome      
         
-def writeRunTxt2ioapi(MEGANHome,GDNAM):
+def writeRunTxt2ioapi(MEGANHome,mcipPath,GDNAM):
     #os.remove(MEGANHome+"/MEGANv2.10/work/run.txt2ioapi.v210.csh")
     file1 = open(MEGANHome+"/MEGANv2.10/work/run.txt2ioapi.v210.csh","w") 
     file1.write('#! /bin/csh -f')
@@ -304,7 +304,7 @@ def writeRunTxt2ioapi(MEGANHome,GDNAM):
     file1.write('\nsetenv PROG   txt2ioapi')
     file1.write('\nsetenv EXEDIR $MGNEXE')
     file1.write('\nsetenv EXEC   $EXEDIR/$PROG')
-    file1.write('\nsetenv GRIDDESC $MGNRUN/GRIDDESC')
+    file1.write('\nsetenv GRIDDESC GRIDDESC')
     file1.write('\nsetenv GDNAM3D ${DOM}') 
     file1.write('\n')
     file1.write('\n## File setups')
@@ -385,7 +385,7 @@ if __name__ == '__main__':
     nrows = args.nrows
     writeRunMEGANsetcase(MEGANHome)
     writePrepMeganInput(MEGANHome,wrf_dir,ncols,nrows)
-    writeRunTxt2ioapi(MEGANHome,GDNAM)
+    writeRunTxt2ioapi(MEGANHome,mcipPath,GDNAM)
     writeRunMet2mgn(MEGANHome,GDNAM,YEAR,STJD,EDJD,mcipPath)
-    writeRunEmproc(MEGANHome,GDNAM,YEAR,STJD)
+    writeRunEmproc(MEGANHome,mcipPath,GDNAM,YEAR,STJD)
     writeRunMgn2mech(MEGANHome,GDNAM,YEAR,STJD)

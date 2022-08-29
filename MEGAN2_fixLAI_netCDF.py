@@ -11,10 +11,10 @@ import netCDF4 as nc4
 import numpy as np
 import argparse
 
-def fixLAI(folder):
+def fixLAI(folder,GDNAM):
     # Reading arcGIS grid format files Global, monthly ~1-km LAIv 
-    fileIn = '/LAIS46.SC_2019.ncf'
-    fileOut ='/LAIS46.SC_2019.fixed.ncf'
+    fileIn = '/LAIS46.'+GDNAM+'.ncf'
+    fileOut ='/LAIS46.'+GDNAM+'.fixed.ncf'
     f1 = nc4.Dataset(folder+fileIn)
     tflag=f1['TFLAG'][:]
     lais=f1['LAIS'][:]
@@ -134,7 +134,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', default=0, action='count')
     parser.add_argument('MEGANHome')
+    parser.add_argument('GDNAM')
     args = parser.parse_args()
     MEGANHome = args.MEGANHome
+    GDNAM = args.GDNAM
     folder = MEGANHome+'/inputs'
-    fixLAI(folder)
+    fixLAI(folder,GDNAM)
