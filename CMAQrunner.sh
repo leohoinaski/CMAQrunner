@@ -162,7 +162,7 @@ do
 
   echo '-------------------------Running MEGAN-----------------------'
   # Check shRunnerMEGAN.py for more input configurations
-  python3 ${CDIR}/shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+  python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
   cd ${MEGANHome}/MEGANv2.10/work && ./run.met2mgn.v210.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv2.10/work && ./run.emproc.v210.csh #>&! emproc.log; cd -
   cd ${MEGANHome}/MEGANv2.10/work && ./run.mgn2mech.v210.csh #>&! mgn2mech.log; cd -
