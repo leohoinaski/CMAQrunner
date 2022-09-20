@@ -31,7 +31,6 @@
 #
 # Developed by Leonardo Hoinaski - leonardo.hoinaski@ufsc.br
 #
-# YOU HAVE TO ADD A GRIDDESC DESCRIPTION IN THE MEGAN/WORK dir
 #
 #---------------------------------- Inputs --------------------------------------------
 
@@ -66,7 +65,7 @@ echo 'Simulation starting in '${STARTDAY}
 echo ' '
 
 mcipPath=${CMAQ_HOME}/data/mcip/${GDNAM}
-MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN21
+MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN
 BRAVEShome=${CMAQ_HOME}/PREP/emis/BRAVES_database
 INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
 finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
@@ -118,20 +117,20 @@ do
     runOrnotCMAQemiss=1
 
     echo '---------------------Running PREPMEGAN--------------------'
-    if [ ! -f "${wrf_dir}/wrfout" ]; then
-      ln -sf ${wrf_dir}/wrfout_d01_'+YYYYMMDD+'_18:00:00 ${wrf_dir}/wrfout
-    fi
+    #if [ ! -f "${wrf_dir}/wrfout" ]; then
+    #  ln -sf ${wrf_dir}/wrfout_d01_'+YYYYMMDD+'_18:00:00 ${wrf_dir}/wrfout
+    #fi
 
-    echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
-    cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv2.10/work/GRIDDESC
+    #echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
+    #cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv2.10/work/GRIDDESC
 
-    python3 ${CDIR}/shRunnerMEGAN.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
-    #cd ${MEGANHome}/prepmegan4cmaq_2014-06-02 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
+    python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+    cd ${MEGANHome}/MEGAN31_Prep_Code_July2020 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
     echo 'Running txt2ioapi'${pwd}
-    cd ${MEGANHome}/MEGANv2.10/work && ./run.txt2ioapi.v210.csh #>&! txtioapi.log; cd -
+    cd ${MEGANHome}/MEGANv3.21/work && ./run.txt2ioapi.v32.csh #>&! txtioapi.log; cd -
     echo 'Fixing txt2ioapi files'
-    python3 ${CDIR}/MEGAN2_fixLAI_netCDF.py ${MEGANHome} ${GDNAM} 
-    mv ${MEGANHome}/inputs/LAIS46.$GDNAM.fixed.ncf ${MEGANHome}/inputs/LAIS46.$GDNAM.ncf
+    #python3 ${CDIR}/MEGAN2_fixLAI_netCDF.py ${MEGANHome} ${GDNAM} 
+    #mv ${MEGANHome}/inputs/LAIS46.$GDNAM.fixed.ncf ${MEGANHome}/inputs/LAIS46.$GDNAM.ncf
     echo '-----------------------Running ICON-----------------------'
     cd ${CMAQ_HOME}/PREP/icon/scripts && ./run_icon.csh #>&! icon.log; cd - &
     echo '-----------------------Running BCON-----------------------'
@@ -174,7 +173,7 @@ do
   wait
 
   echo '------------Copying input files to CMAQ input folder---------'
-  ln -sf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${CMAQ_HOME}/data/inputs/${GDNAM}/MEGANout
+  ln -sf ${MEGANHome}/MEGANv3.21/Output/MEGANv31.${GDNAM}.CB6X.${YYYYJJJ}.BDSNP.ncf ${CMAQ_HOME}/data/inputs/${GDNAM}/MEGANout
   ln -sf ${BRAVEShome}/Outputs/${GDNAM}/BRAVESdatabase2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MMend}_${DDend}_0000.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/BRAVESout
   ln -sf ${INDinventoryPath}/Outputs/${GDNAM}/IND2CMAQ_${YYYY}_${MM}_${DD}_0000_to_${YYYY}_${MMend}_${DDend}_0000.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/INDout
   ln -sf ${finn2cmaqPath}/hourly/${YYYY}/$MM/FINNv1.5_2016.CB6r3.NRT.${GDNAM}.3D.${YYYYMMDD}.nc ${CMAQ_HOME}/data/inputs/${GDNAM}/FINNout
