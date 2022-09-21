@@ -427,7 +427,7 @@ def writeRunMegcan(MEGANHome,mcipPath,GDNAM):
 
     file1.write('\n########################################################################')
     file1.write('\n## Run MEGAN')
-    file1.write('\nif ( $RUN_MEGAN == 'Y' ) then')
+    file1.write("\nif ( $RUN_MEGAN == 'Y' ) then")
     file1.write('\n   rm -f $CANMET')
     file1.write('\n   $EXE | tee $LOGDIR/log.run.$PROG.$GDNAM3D.$JD.txt')
     file1.write('\nendif')
@@ -557,7 +557,7 @@ def writeRunMegsea(MEGANHome,mcipPath,GDNAM):
     file1.write('\n########################################################################')
     file1.write('\n')
     file1.write('\nforeach dom ( '+GDNAM+' ) ')
-    file1.write('\nsetenv DOMAIN `echo $dom | cut -d '_' -f1`')
+    file1.write("\nsetenv DOMAIN `echo $dom | cut -d '_' -f1`")
     file1.write('\nsetenv GRIDDESC '+mcipPath+'/GRIDDESC')
     file1.write('\nsetenv SDATE '+STJD)
     file1.write('\nsetenv EDATE '+STJD)
@@ -639,7 +639,7 @@ def writeRunMegsea(MEGANHome,mcipPath,GDNAM):
     file1.write('\nsetenv MGNSEA $MGNINT/MGNSEA.$GDNAM3D.${SDATE}.ncf')
     file1.write('\n########################################################################')
     file1.write('\n## Run MEGAN')
-    file1.write('\nif ( $RUN_MEGAN == 'Y' ) then')
+    file1.write("\nif ( $RUN_MEGAN == 'Y' ) then")
     file1.write('\n  rm -f $MGNSEA')
     file1.write('\n  $EXE | tee $LOGDIR/log.run.$PROG.$GDNAM3D.$SDATE.txt')
     file1.write('\nendif')
@@ -722,7 +722,7 @@ def writeRunMegvea(MEGANHome,mcipPath,GDNAM,STJD):
     file1.write('\nsetenv MGNERS $MGNINT/MGNERS.$GDNAM3D.${SDATE}.ncf')
     file1.write('\n########################################################################')
     file1.write('\n## Run MEGAN')
-    file1.write('\nif ( $RUN_MEGAN == 'Y' ) then')
+    file1.write("\nif ( $RUN_MEGAN == 'Y' ) then")
     file1.write('\n  rm -f $MGNERS')
     file1.write('\n  $EXE | tee $LOGDIR/log.run.$PROG.$GDNAM3D.$SDATE.txt')
     file1.write('\nendif')
@@ -800,7 +800,7 @@ def writeRunMgn2mech(MEGANHome,mcipPath,GDNAM,STJD):
     file1.write('\nendif')
     file1.write('\n########################################################################')
     file1.write('\n## Run speciation and mechanism conversion')
-    file1.write('\nif ( $RUN_SPECIATE == 'Y' ) then')
+    file1.write("\nif ( $RUN_SPECIATE == 'Y' ) then")
     file1.write('\n  rm -f $MGNOUT')
     file1.write('\n  $EXE | tee $LOGDIR/log.run.$PROG.$GDNAM3D.$MECHANISM.$SDATE.txt')
     file1.write('\nendif')
@@ -857,7 +857,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     MEGANHome = args.MEGANHome
     mcipPath = args.mcipPath
-    wrf_dir = args.wrf_dir
+    wrf_file = args.wrf_file
     GDNAM = args.GDNAM
     YEAR = args.YEAR
     STJD = args.STJD
