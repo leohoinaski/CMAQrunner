@@ -42,6 +42,7 @@ STARTDAY=2019-01-01
 ncols=229
 nrows=219
 wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/BR
+wrf_file=${wrf_dir}/wrfout_d01_2018-12-31_18:00:00
 wrfDomain=1 # d01 = 1 and d02 = 2
 NPCOL=7 # Define number of processors to use - NPCOL*NPROW
 NPROW=5
@@ -67,7 +68,6 @@ MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN
 BRAVEShome=${CMAQ_HOME}/PREP/emis/BRAVES_database
 INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
 finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
-wrf_file=${wrf_dir}/wrfout_d01_2018-12-31_18:00:00
 YYYYMMDDi=`date -ud "${STARTDAY}" +%Y%m%d`
 YYYYJJJi=`date -ud "${STARTDAY}" +%Y%j`
 
@@ -161,6 +161,8 @@ do
   echo '-------------------------Running MEGAN-----------------------'
   # Check shRunnerMEGAN.py for more input configurations
   python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_file} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+  cp -r ${MEGANHome}/input/grid_* ${MEGANHome}/MEGANv3.21/MEGEFP32/inputs/EFP/.
+  cd ${MEGANHome}/MEGANv3.21/MEGEFP32 && python MEGAN_EFP.py
   cd ${MEGANHome}/MEGANv3.21/work && ./run.met2mgn.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.daymet.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.megcan.v32.csh #>&! met2mgn.log; cd -
