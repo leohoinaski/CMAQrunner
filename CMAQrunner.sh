@@ -163,9 +163,12 @@ do
   echo '-------------------------Running MEGAN-----------------------'
   # Check shRunnerMEGAN.py for more input configurations
   python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
-  cd ${MEGANHome}/MEGANv2.10/work && ./run.met2mgn.v210.csh #>&! met2mgn.log; cd -
-  cd ${MEGANHome}/MEGANv2.10/work && ./run.emproc.v210.csh #>&! emproc.log; cd -
-  cd ${MEGANHome}/MEGANv2.10/work && ./run.mgn2mech.v210.csh #>&! mgn2mech.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.met2mgn.v32.csh #>&! met2mgn.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.daymet.v32.csh #>&! met2mgn.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.megcan.v32.csh #>&! met2mgn.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.megsea.v32.csh #>&! met2mgn.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.megvea.v32.csh #>&! met2mgn.log; cd -
+  cd ${MEGANHome}/MEGANv3.21/work && ./run.mgn2mech.v232.csh #>&! mgn2mech.log; cd -
   ncatted -O -h -a NVARS,global,m,d,24 ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
   ncatted -O -h -a VAR-LIST,global,m,c,"ISOP            TERP            PAR             XYL             OLE             NR              MEOH            CH4             NH3             NO              ALD2            ETOH            FORM            ALDX            TOL             IOLE            CO              ETHA            ETH             ETHY            PRPA            BENZ            ACET            KET             " ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
   ncks -O -x -v GDAY ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
