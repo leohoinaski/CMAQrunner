@@ -41,8 +41,6 @@ STARTDAY=2019-01-01
 #NDAYS=2 not working yet
 ncols=229
 nrows=219
-#wrf_dir=${CMAQ_HOME}/data/met/wrf/${GDNAM}
-#wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/SC
 wrf_dir=/home/WRFout/share/BR_222x191_SC_232x186/BR
 wrfDomain=1 # d01 = 1 and d02 = 2
 NPCOL=7 # Define number of processors to use - NPCOL*NPROW
@@ -69,7 +67,7 @@ MEGANHome=${CMAQ_HOME}/PREP/emis/MEGAN
 BRAVEShome=${CMAQ_HOME}/PREP/emis/BRAVES_database
 INDinventoryPath=${CMAQ_HOME}/PREP/emis/IND_inventory
 finn2cmaqPath=${CMAQ_HOME}/PREP/emis/finn2cmaq-master
-
+wrf_file=${wrf_dir}/wrfout_d01_2018-12-31_18:00:00
 YYYYMMDDi=`date -ud "${STARTDAY}" +%Y%m%d`
 YYYYJJJi=`date -ud "${STARTDAY}" +%Y%j`
 
@@ -124,7 +122,7 @@ do
     #echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
     #cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv2.10/work/GRIDDESC
 
-    python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+    python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_file} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
     cd ${MEGANHome}/MEGAN31_Prep_Code_July2020 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
     echo 'Running txt2ioapi'${pwd}
     cd ${MEGANHome}/MEGANv3.21/work && ./run.txt2ioapi.v32.csh #>&! txtioapi.log; cd -
@@ -162,16 +160,16 @@ do
 
   echo '-------------------------Running MEGAN-----------------------'
   # Check shRunnerMEGAN.py for more input configurations
-  python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_dir} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
+  python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_file} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
   cd ${MEGANHome}/MEGANv3.21/work && ./run.met2mgn.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.daymet.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.megcan.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.megsea.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.megvea.v32.csh #>&! met2mgn.log; cd -
   cd ${MEGANHome}/MEGANv3.21/work && ./run.mgn2mech.v232.csh #>&! mgn2mech.log; cd -
-  ncatted -O -h -a NVARS,global,m,d,24 ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
-  ncatted -O -h -a VAR-LIST,global,m,c,"ISOP            TERP            PAR             XYL             OLE             NR              MEOH            CH4             NH3             NO              ALD2            ETOH            FORM            ALDX            TOL             IOLE            CO              ETHA            ETH             ETHY            PRPA            BENZ            ACET            KET             " ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
-  ncks -O -x -v GDAY ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
+  #ncatted -O -h -a NVARS,global,m,d,24 ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
+  #ncatted -O -h -a VAR-LIST,global,m,c,"ISOP            TERP            PAR             XYL             OLE             NR              MEOH            CH4             NH3             NO              ALD2            ETOH            FORM            ALDX            TOL             IOLE            CO              ETHA            ETH             ETHY            PRPA            BENZ            ACET            KET             " ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
+  #ncks -O -x -v GDAY ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf ${MEGANHome}/MEGANv2.10/outputs/MEGANv2.10.${GDNAM}.CB6.${YYYYJJJ}.ncf
   
   wait
 
