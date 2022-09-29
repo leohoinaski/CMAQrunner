@@ -214,14 +214,22 @@ def createNETCDF(folder,name,dataMat,mcipPath):
     ds3 = nc4.Dataset(griddot2d)
     for gatr in ds3.ncattrs() :
         setattr(f2, gatr, ds3.getncattr(gatr))
+    
+    strVAR = ''
+    for ids in ['SURF', 'OPEN']:
+        strVAR = strVAR + ids.ljust(16)
+    #strVAR ='ACET            ACROLEIN        ALD2            ALD2_PRIMARY    ALDX            BENZ            BUTADIENE13     CH4             CH4_INV         CL2             CO              CO2_INV         ETH             ETHA            ETHY            ETOH            FORM            FORM_PRIMARY    HCL             HONO            IOLE            ISOP            KET             MEOH            N2O_INV         NAPH            NH3             NH3_FERT        NO              NO2             NVOL            OLE             PAL             PAR             PCA             PCL             PEC             PFE             PH2O            PK              PMC             PMG             PMN             PMOTHR          PNA             PNCOM           PNH4            PNO3            POC             PRPA            PSI             PSO4            PTI             SO2             SOAALK          SULF            TERP            TOL             UNK             UNR             VOC_INV         XYLMN           '
+    setattr(f2, 'VAR-LIST', strVAR)
+    f2.NROWS=dataMat.shape[2]
+    f2.NCOLS=dataMat.shape[3]
 
     f2.NVARS= dataMat.shape[1]
     f2.FILEDESC= 'OCEAN created by Leonardo Hoinaski '
     f2.HISTORY =''
-    f2.createDimension('TSTEP', None )
+    f2.createDimension('TSTEP', 1 )
     f2.createDimension('DATE-TIME', 2)
-    f2.createDimension('LAY', ds3.NLAYS)
-    f2.createDimension('VAR', dataMat.shape[1])
+    f2.createDimension('LAY', 1)
+    f2.createDimension('VAR', 2)
     f2.createDimension('ROW', dataMat.shape[2])
     f2.createDimension('COL', dataMat.shape[3])
     # Building variables
@@ -229,8 +237,7 @@ def createNETCDF(folder,name,dataMat,mcipPath):
     SURF = f2.createVariable('SURF', np.float32, ('TSTEP', 'LAY','ROW','COL'))
     OPEN = f2.createVariable('OPEN', np.float32, ('TSTEP', 'LAY','ROW','COL'))
     # Passing data into variables
-    TFLAG[:,:,:] = np.repeat(ds3['TFLAG'][:,0,:][:, np.newaxis,:], 
-                             dataMat.shape[1], axis=1)
+    TFLAG[:,:,:] = np.zeros((1,2,2))
     TFLAG.units = '<YYYYDDD,HHMMSS>'
     TFLAG.var_desc = 'Timestep-valid flags:  (1) YYYYDDD or (2) HHMMSS'
     SURF[:,:,:] = dataMat[0,0,:,:]
