@@ -38,7 +38,7 @@ CDIR=$PWD
 CMAQ_HOME=/home/lcqar/CMAQ_REPO
 GDNAM=BR_2019
 STARTDAY=2019-01-01
-#NDAYS=2 not working yet
+NDAYS=2
 ncols=219
 nrows=229
 wrf_dir=/home/WRFout/share/BR_SC_testes/teste/BR
@@ -50,7 +50,7 @@ NLAYS=33
 NEW_START=TRUE
 BCONregrid=TRUE
 GDNAMregrid='SC_2019'
-regridPath=' '
+regridPath='/test ' #Path do smaller domain
 runOrnotRoadDens=1 # 0 if you already have the roadDensity files
 runOrnotRoadEmiss=1 # 0 if you already have the roadEmiss files
 runOrnotMergeRoadEmiss=1 # 0 if you already have the mergeRoadEmiss files
@@ -89,7 +89,7 @@ if [ ! -d "${CMAQ_HOME}/data/inputs/${GDNAM}" ]; then
   mkdir ${CMAQ_HOME}/data/inputs/${GDNAM}
 fi
 
-for day in {0..1}
+for day in $(eval echo "{0..$NDAYS}")
 do
   YYYYMMDD=`date -ud "${STARTDAY} +${day}days" +%Y-%m-%d`
   YYYYMMDDend=`date -ud "${STARTDAY} +${day}days +${1}days " +%Y-%m-%d`
@@ -114,8 +114,8 @@ do
   echo '------------------------Running MCIP------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh #>&! mcip.log; cd -
 
-  if ['$NEW_START' ==  'TRUE' ];then
-
+  if [ $NEW_START = TRUE ] ;then
+    echo "Seting NEW_START as TRUE"
     echo '---------------------Running PREPMEGAN--------------------'
     echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
     cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv3.21/work/GRIDDESC
@@ -198,7 +198,7 @@ do
   runOrnotBRAVES2netCDF=0
   runOrnotCMAQemiss=1
 
-  if ['$NEW_START' ==  'TRUE'] ;then
+  if [ '$NEW_START' =  TRUE ] ;then
     cd ${CMAQ_HOME}/PREP/bcon/scripts && ./run_bcon_regrid.csh
   fi
 
