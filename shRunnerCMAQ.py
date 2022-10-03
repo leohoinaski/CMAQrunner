@@ -463,7 +463,137 @@ def writeBCONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD):
 \n    set YYYYMMDD = `date -ud "${DATE}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD\
 \n#   setenv SDATE           ${YYYYJJJ}\
 \n#   setenv STIME           000000\
-\n#   setenv RUNLEN          240000\
+\n#   setenv RUNLEN          250000\
+\n\
+\n if ( $BCON_TYPE == regrid ) then \
+\n    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc\
+\n    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}\
+\n    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc\
+\n    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"\
+\n endif\
+\n\
+\n if ( $BCON_TYPE == profile ) then\
+\n    setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv\
+\n    setenv MET_BDY_3D_FIN '+mcipPath+'/METBDY3D_$GRID_NAME.nc\
+\n    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"\
+\n endif\
+\n\
+\n# =====================================================================\
+\n#> Output File\
+\n# =====================================================================\
+\n \
+\n#>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -\
+\n\
+\n if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR\
+\n\
+\n ls -l $BLD/$EXEC; size $BLD/$EXEC\
+\n# unlimit\
+\n limit\
+\n\
+\n#> Executable call:\
+\n time $BLD/$EXEC\
+\n\
+\n exit() '
+    file1.write(str1)
+    file1.close()
+    return file1
+
+def writeBCONregridscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,regridPath,GDNAMregrid):  
+    scriptPath = CMAQHome +'/PREP/bcon/scripts'       
+    file1 = open(scriptPath + "/run_bcon_regrid.csh","w") 
+    file1.write('#! /bin/csh -f')
+    file1.write('\n')
+    str1='\n# ======================= BCONv5.3.X Run Script ======================== \
+\n# Usage: run.bcon.csh >&! bcon.log & \
+\n#\
+\n# To report problems or request help with this script/program:        \
+\n#             http://www.cmascenter.org\
+\n# ==================================================================== \
+\n\
+\n# ==================================================================\
+\n#> Runtime Environment Options\
+\n# ==================================================================\
+\n\
+\n#> Choose compiler and set up CMAQ environment with correct \
+\n#> libraries using config.cmaq. Options: intel | gcc | pgi\
+\n setenv compiler gcc \
+\n\
+\n#> Source the config_cmaq file to set the run environment\
+\n pushd ../../../\
+\n source ./config_cmaq.csh $compiler\
+\n popd\
+\n\
+\n#> Check that CMAQ_DATA is set:\
+\n if ( ! -e $CMAQ_DATA ) then\
+\n    echo "   $CMAQ_DATA path does not exist"\
+\n    exit 1\
+\n endif\
+\n echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "\
+\n\
+\n#> Set General Parameters for Configuring the Simulation\
+\n set VRSN     = v532                    #> Code Version\
+\n set APPL     = '+GDNAMregrid+'              #> Application Name\
+\n set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]\
+\n\
+\n#> Set the build directory:\
+\n set BLD      = ${CMAQ_HOME}/PREP/bcon/scripts/BLD_BCON_${VRSN}_${compilerString}\
+\n set EXEC     = BCON_${VRSN}.exe  \
+\n cat $BLD/BCON_${VRSN}.cfg; echo " "; set echo\
+\n\
+\n#> Horizontal grid definition \
+\n setenv GRID_NAME '+GDNAMregrid+'               #> check GRIDDESC file for GRID_NAME options\
+\n setenv GRIDDESC '+regridPath+'/GRIDDESC #> grid description file \
+\n setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling\
+\n\
+\n#> I/O Controls\
+\n setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]\
+\n setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]\
+\n setenv EXECUTION_ID $EXEC    #> define the model execution id\
+\n\
+\n# =====================================================================\
+\n#> BCON Configuration Options\
+\n#\
+\n# BCON can be run in one of two modes:                                     \
+\n#     1) regrids CMAQ CTM concentration files (BC type = regrid)     \
+\n#     2) use default profile inputs (BC type = profile)\
+\n# =====================================================================\
+\n\
+\n setenv BCON_TYPE ` echo $BCTYPE | tr "[A-Z]" "[a-z]" `\
+\n\
+\n# =====================================================================\
+\n#> Input/Output Directories\
+\n# =====================================================================\
+\n\
+\n set OUTDIR   = $CMAQ_HOME/data/bcon       #> output file directory\
+\n\
+\n# =====================================================================\
+\n#> Input Files\
+\n#  \
+\n#  Regrid mode (BC = regrid) (includes nested domains, windowed domains,\
+\n#                             or general regridded domains)\
+\n     CTM_CONC_1 = '+CMAQHome+'/data/output_CCTM_$VRSN_gcc_$GDNAM/CCTM_CONC_$VRSN_gcc_$GDNAM_$YYYYMMDD.nc          \
+\n     MET_CRO_3D_CRS = '+ mcipPath+'/METCRO3D_$GDNAM.nc\
+\n     MET_BDY_3D_FIN = '+ mcipPath+'/METBDY3D_$GDNAM.nc\
+\n#                                                                            \
+\n#  Profile mode (BC type = profile)\
+\n#     BC_PROFILE = static/default BC profiles \
+\n#     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target domain \
+\n#\
+    \
+\n# NOTE: SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are only \
+\n#       relevant to the regrid mode and if they are not set,  \
+\n#       these variables will be set from the input MET_BDY_3D_FIN file\
+\n# =====================================================================\
+\n#> Output File\n#     BNDY_CONC_1 = gridded BC file for target domain\
+\n# =====================================================================\
+\n \
+\n    set DATE = "'+YYYYMMDD+'"\
+\n    set YYYYJJJ  = `date -ud "${DATE}" +%Y%j`   #> Convert YYYY-MM-DD to YYYYJJJ\
+\n    set YYMMDD   = `date -ud "${DATE}" +%y%m%d` #> Convert YYYY-MM-DD to YYMMDD\
+\n    set YYYYMMDD = `date -ud "${DATE}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD\
+\n#   setenv SDATE           ${YYYYJJJ}\
+\n#   setenv STIME           000000\
+\n#   setenv RUNLEN          250000\
 \n\
 \n if ( $BCON_TYPE == regrid ) then \
 \n    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc\
@@ -1305,6 +1435,8 @@ if __name__ == '__main__':
     parser.add_argument('YYYYMMDDi')
     parser.add_argument('YESTERDAY')
     parser.add_argument('wrfDomain')
+    parser.add_argument('regridPath')
+    parser.add_argument('GDNAMregrid')
     args = parser.parse_args()
     CMAQHome = args.CMAQHome
     wrf_dir = args.wrf_dir
@@ -1318,8 +1450,11 @@ if __name__ == '__main__':
     NEW_START = args.NEW_START
     YESTERDAY = args.YESTERDAY
     wrfDomain = args.wrfDomain
+    regridPath= args.regridPath
+    GDNAMregrid= args.GDNAMregrid
     mcipPath = CMAQHome+'/data/mcip/'+GDNAM
     writeMCIPscript(CMAQHome,wrf_dir,GDNAM,YYYYMMDD,YYYYMMDDend,YESTERDAY,wrfDomain)
     writeICONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
     writeBCONscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD)
+    writeBCONregridscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,regridPath,GDNAMregrid)
     writeCCTMscript(CMAQHome,mcipPath,GDNAM,YYYYMMDD,YYYYMMDDend,NPCOL,NPROW,NLAYS,NEW_START,YYYYMMDDi)

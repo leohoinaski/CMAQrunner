@@ -48,6 +48,14 @@ NPCOL=7 # Define number of processors to use - NPCOL*NPROW
 NPROW=5
 NLAYS=33
 NEW_START=TRUE
+BCONregrid=TRUE
+GDNAMregrid='SC_2019'
+regridPath=' '
+runOrnotRoadDens=1 # 0 if you already have the roadDensity files
+runOrnotRoadEmiss=1 # 0 if you already have the roadEmiss files
+runOrnotMergeRoadEmiss=1 # 0 if you already have the mergeRoadEmiss files
+runOrnotBRAVES2netCDF=1 # 0 if you already have the annual netCDF files from BRAVES
+runOrnotCMAQemiss=1
 
 #==========================================PROCESSING==================================
 echo '==========================CMAQrunner==========================='
@@ -96,32 +104,23 @@ do
   YESTERDAY=`date -ud "${YYYYMMDD} 1 day ago " +%Y-%m-%d`
 
 
-
-  echo "===============>>>>>>>>DAY $YYYYJJJ <<<<<<<<<===============" 
-  echo "               >>>>>>>>    LCQAR    <<<<<<<<<               " 
-  echo "               >>>>>>>>    UFSC     <<<<<<<<<               " 
-  echo "============================================================"
+  echo "===============>>>>>>>> DAY $YYYYJJJ <<<<<<<<<===============" 
+  echo "               >>>>>>>>    LCQAR     <<<<<<<<<               " 
+  echo "               >>>>>>>>    UFSC      <<<<<<<<<               " 
+  echo "============================================================="
   echo " "
   # echo ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain} 
-  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain}
+  python3 ${CDIR}/shRunnerCMAQ.py ${CMAQ_HOME} ${wrf_dir} ${GDNAM} ${YYYYMMDD} ${YYYYMMDDend} ${NPCOL} ${NPROW} ${NLAYS} ${NEW_START} ${YYYYMMDDi} ${YESTERDAY} ${wrfDomain} ${GDNAMregrid} ${regridPath}
   echo '------------------------Running MCIP------------------------'
   cd  ${CMAQ_HOME}/PREP/mcip/scripts && ./run_mcip.csh #>&! mcip.log; cd -
 
-  if test ${day} -lt 1 ;then
-    #runOrnotRoadDens=1 # 0 if you already have the roadDensity files
-    #runOrnotRoadEmiss=1 # 0 if you already have the roadEmiss files
-    #runOrnotMergeRoadEmiss=1 # 0 if you already have the mergeRoadEmiss files
-    #runOrnotBRAVES2netCDF=1 # 0 if you already have the annual netCDF files from BRAVES
-    #runOrnotCMAQemiss=1
+  if ['$NEW_START' ==  'TRUE' ];then
 
     echo '---------------------Running PREPMEGAN--------------------'
-    #if [ ! -f "${wrf_dir}/wrfout" ]; then
-    #  ln -sf ${wrf_dir}/wrfout_d01_'+YYYYMMDD+'_18:00:00 ${wrf_dir}/wrfout
-    #fi
-
-    #echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
-    #cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv3.21/work/GRIDDESC
-
+    echo 'Making a GRIDDESC copy in MEGAN21/MEGANv2.10/work folder '
+    cp -r ${mcipPath}/GRIDDESC ${MEGANHome}/MEGANv3.21/work/GRIDDESC
+    cd ${MEGANHome}/MEGANv3.21/work
+    sed -i 's/  7         /  5         /' GRIDDESC
     python3 ${CDIR}/shRunnerMEGANv3.21.py ${MEGANHome} ${mcipPath} ${wrf_file} ${GDNAM} ${YYYY} ${STJD} ${EDJD} ${ncols} ${nrows}
     cd ${MEGANHome}/MEGAN31_Prep_Code_July2020 && ./run_prepmegan4cmaq.csh >&! prepmegan.log; cd -
     echo 'Running txt2ioapi'${pwd}
@@ -135,12 +134,12 @@ do
     cd ${CMAQ_HOME}/PREP/bcon/scripts && ./run_bcon.csh #>&! bcon.log; cd -
     if [ ! -f "${CMAQ_HOME}/PREP/Spatial-Allocator/data/ocean_file_${GDNAM}.ncf" ]; then
       echo '----------------Running OCEAN - SURFZONE----------------'
-      python3 ${CDIR}/hoinaskiSURFZONE.py ${CMAQ_HOME}/PREP/Spatial-Allocator ${GDNAM} ${mcipPath} 
+      python3 ${CDIR}/hoinaskiSURFZONEv2.py ${CMAQ_HOME}/PREP/Spatial-Allocator ${GDNAM} ${mcipPath} 
       ln -sf ${CMAQ_HOME}/PREP/Spatial-Allocator/data/ocean_file_${GDNAM}.ncf ${CMAQ_HOME}/data/inputs/${GDNAM}/OCEAN
     else
       echo 'You already have the OCEAN file'
     fi
-    echo 'Seting next step as NEWSTART=FALSE'
+    
   fi
   wait
 
@@ -192,11 +191,17 @@ do
   sudo chmod +x ${CMAQ_HOME}/CCTM/scripts/run_cctm.csh
   cd ${CMAQ_HOME}/CCTM/scripts && ./run_cctm.csh
   NEW_START=FALSE
+  echo 'Seting next step as NEWSTART=FALSE'
   runOrnotRoadDens=0
   runOrnotRoadEmiss=0
   runOrnotMergeRoadEmiss=0
   runOrnotBRAVES2netCDF=0
   runOrnotCMAQemiss=1
+
+  if ['$NEW_START' ==  'TRUE'] ;then
+    cd ${CMAQ_HOME}/PREP/bcon/scripts && ./run_bcon_regrid.csh
+  fi
+
 done
 
 
