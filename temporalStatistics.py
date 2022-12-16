@@ -104,4 +104,23 @@ def eqmerc2latlon(ds,xv,yv):
     p = pyproj.Proj("+proj=merc +lon_0="+str(ds.P_GAM)+" +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
     xlon, ylat = p(xv, yv, inverse=True)
     return xlon,ylat
+
+def trimBorders (data,xv,yv,left,right,top,bottom):
+    if np.size(data.shape)==4:
+        dataT = data[:,:,bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+    if np.size(data.shape)==3:
+        dataT = data[:,bottom:(data.shape[2]-top),left:(data.shape[3]-right)]   
+    if np.size(data.shape)==2:
+        dataT = data[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
     
+    xvT = xv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+    yvT = yv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+    
+    return dataT,xvT,yvT
+              
+def getTime(ds,data):
+    dd = datePrepCMAQ(ds)
+    idx2Remove = np.array(dd.drop_duplicates().index)
+    data = data[idx2Remove]
+    datesTime = dd.drop_duplicates().reset_index(drop=True)
+    return datesTime,data

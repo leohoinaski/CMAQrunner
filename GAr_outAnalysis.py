@@ -7,19 +7,15 @@ Created on Wed Dec  7 09:30:01 2022
 """
 
 import os
-import numpy as np
-import matplotlib.pyplot as plt
-import geopandas as gpd
-from datetime import datetime
+#import numpy as np
+#import matplotlib.pyplot as plt
+#import geopandas as gpd
+#from datetime import datetime
 import netCDF4 as nc
-import pandas as pd
-import temporalStatistics
+#import pandas as pd
+import temporalStatistics as tst
+import GAr_figs as garfig
 
-path = '/media/leohoinaski/HDD/SC_2019'
-
-fileType='CCTM_CONC'
-
-pollutants = ['O3', 'CO', 'SO2', 'NO2']
 
 #%%
 NO2 = {
@@ -28,6 +24,8 @@ NO2 = {
   "Unit": 'ppm',
   "Criteria_annual": 0.021266,
   "Criteria_average": '1-h average',
+  "tag":'NO2',
+  "Criteria_ave": 1,
 }
 
 CO = {
@@ -35,6 +33,8 @@ CO = {
   "Criteria": 9,
   "Unit": 'ppm',
   "Criteria_average": '8-h moving average',
+  "tag":'CO',
+  "Criteria_ave": 8,
 }
 
 O3 = {
@@ -42,6 +42,8 @@ O3 = {
   "Criteria":0.050961,
   "Unit": 'ppm',
   "Criteria_average": '8-h moving average',
+  "Criteria_ave": 8,
+  "tag":'O3'
 }
 
 SO2 = {
@@ -50,6 +52,8 @@ SO2 = {
   "Unit": 'ppm',
   "Criteria_annual": 0.007636,
   "Criteria_average": '24-h average',
+  "Criteria_ave": 24,
+  "tag":'SO2'
 }
 
 PM10 = {
@@ -58,6 +62,8 @@ PM10 = {
   "Unit": '$\u03BCg m_{3}$',
   "Criteria_annual": 20,
   "Criteria_average": '24-h average',
+  "tag":'PM10',
+  "Criteria_ave": 24,
 }
 
 PM25 = {
@@ -66,7 +72,27 @@ PM25 = {
   "Unit": '$\u03BCg m_{3}$',
   "Criteria_annual": 10,
   "Criteria_average": '24-h average',
+  "tag":'PM25',
+  "Criteria_ave": 24,
 }
+
+#%% INPUTS
+path = '/media/leohoinaski/Backup'
+
+borderShape = '/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
+
+fileType='CCTM_CONC'
+
+pollutants = [O3,NO2]
+
+# Trim domain
+left = 40
+right = 20
+top=95
+bottom=20
+
+
+
 
 #%% Opening data 
 
@@ -76,29 +102,67 @@ os.chdir(path)
 # Selecting files and variables
 prefixed = sorted([filename for filename in os.listdir(path) if filename.startswith(fileType)])
 
+# Opening netCDF files
 ds = nc.MFDataset(prefixed)
-dsMet = nc.Dataset('GRIDCRO2D_SC_2019.nc')
 
-data = ds['O3'][:]
-
-datesTime = temporalStatistics.datePrepCMAQ(ds)
-
-idx2Remove = np.array(datesTime.drop_duplicates().index)
-
-data = data[idx2Remove]
-
-datesTime = datesTime.drop_duplicates().reset_index(drop=True)
-
-dailyData = temporalStatistics.dailyAverage(datesTime,data)
-
-monthlyData = temporalStatistics.monthlyAverage(datesTime,data)
-
-mvAveData = temporalStatistics.movingAverage(datesTime,data,8)
-
-xv,yv,lon,lat = temporalStatistics.ioapiCoords(ds)
-
-xlon, ylat = temporalStatistics.eqmerc2latlon(ds,xv,yv)
-
-freqExcd= temporalStatistics.exceedance(mvAveData,0.07)
-
-
+for pol in pollutants:
+    # Selecting variable
+    data = ds[pol['tag']][:]
+    
+    # Get datesTime and removing duplicates
+    datesTime, data = tst.getTime(ds,data)
+    
+    # Get coordinates from ioapi 
+    xv,yv,lon,lat = tst.ioapiCoords(ds)
+    
+    # Trim borders left/right/bottom/top
+    dataT,xvT,yvT= tst.trimBorders(data,xv,yv,left,right,top,bottom)
+    
+   
+    if pol['Criteria_ave']==1:
+        aveData = dataT.copy()
+    elif pol['Criteria_ave']==8:
+        # Daily-maximum 8h-moving average
+        aveData = tst.movingAverage(datesTime,dataT,8)
+    elif pol['Criteria_ave']==24:
+        # Daily averages
+        aveData = tst.dailyAverage(datesTime,dataT)
+           
+    # Monthly averages
+    monthlyData = tst.monthlyAverage(datesTime,dataT)
+    
+    # Frequency of violations
+    freqExcd= tst.exceedance(aveData,pol['Criteria'])
+    
+    # Transforming mercator to latlon/degrees
+    xlon, ylat = tst.eqmerc2latlon(ds,xvT,yvT)
+    
+    # Figures
+    # Average
+    legend = pol['Pollutant'] +' '+ pol['Criteria_average'] +'\n'+ pol['Unit']
+    cmap = 'YlOrRd'
+    garfig.timeAverageFig(aveData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape)
+    
+    # Exceedence
+    legend = pol['Pollutant'] +' '+ pol['Criteria_average'] +'\n'+ 'Number of violations'
+    cmap = 'RdPu'
+    garfig.exceedanceFig(freqExcd[0,:,:],xlon,ylat,legend,cmap,borderShape)
+    
+    # Criteria
+    cmap = 'YlOrBr'     
+    garfig.criteriaFig(aveData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape,pol['Criteria'])
+    
+   # Yearly averages
+    if "Criteria_annual" in pol:
+        yearlyData = tst.yearlyAverage(datesTime,dataT)
+        # Frequency of violations
+        freqExcdY= tst.exceedance(yearlyData,pol['Criteria_annual'])
+        legend = pol['Pollutant'] +' '+ 'Annual average' +'\n'+ pol['Unit']
+        cmap = 'YlOrRd'
+        garfig.timeAverageFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape)
+        # Exceedence
+        legend = pol['Pollutant'] +' '+ 'Annual average' +'\n'+ 'Number of violations'
+        cmap = 'RdPu'
+        garfig.exceedanceFig(freqExcdY[0,:,:],xlon,ylat,legend,cmap,borderShape)
+        cmap = 'YlOrBr'     
+        garfig.criteriaFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape,pol['Criteria'])
