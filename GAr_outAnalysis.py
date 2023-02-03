@@ -17,9 +17,23 @@ import temporalStatistics as tst
 import GAr_figs as garfig
 import matplotlib
 
+#%% INPUTS
+path = '/media/leohoinaski/HDD/SC_2019'
+
+borderShape = '/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
+cityShape='/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/BR_Municipios_2020.shp'
+fileType='CCTM_CONC'
+
+# Trim domain
+left = 40
+right = 20
+top=95
+bottom=20
+
+
 #%%
 NO2 = {
-  "Pollutant": "Nitrogen dioxide ($NO_{2}$)",
+  "Pollutant": "$NO_{2}$",
   "Criteria": 0.097414,
   "Unit": 'ppm',
   "Criteria_annual": 0.021266,
@@ -29,7 +43,7 @@ NO2 = {
 }
 
 CO = {
-  "Pollutant": "Carbon monoxide (CO)",
+  "Pollutant": "CO",
   "Criteria": 9,
   "Unit": 'ppm',
   "Criteria_average": '8-h moving average',
@@ -38,7 +52,7 @@ CO = {
 }
 
 O3 = {
-  "Pollutant": "Ozone ($O_{3}$)",
+  "Pollutant": "$O_{3}$",
   "Criteria":0.050961,
   "Unit": 'ppm',
   "Criteria_average": '8-h moving average',
@@ -47,7 +61,7 @@ O3 = {
 }
 
 SO2 = {
-  "Pollutant": "Sulphur dioxide ($SO_{2}$)",
+  "Pollutant": "$SO_{2}$",
   "Criteria": 0.007636,
   "Unit": 'ppm',
   "Criteria_annual": 0.007636,
@@ -57,7 +71,7 @@ SO2 = {
 }
 
 PM10 = {
-  "Pollutant": "Particulate Matter ($PM_{10}$)",
+  "Pollutant": "$PM_{10}$",
   "Criteria": 50,
   "Unit": '$\u03BCg m_{3}$',
   "Criteria_annual": 20,
@@ -67,7 +81,7 @@ PM10 = {
 }
 
 PM25 = {
-  "Pollutant": "Particulate Matter ($PM_{2.5}$)",
+  "Pollutant": "$PM_{2.5}$",
   "Criteria": 25,
   "Unit": '$\u03BCg m_{3}$',
   "Criteria_annual": 10,
@@ -76,24 +90,7 @@ PM25 = {
   "Criteria_ave": 24,
 }
 
-#%% INPUTS
-path = '/media/leohoinaski/Backup'
-
-borderShape = '/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
-
-fileType='CCTM_CONC'
-
-pollutants = [O3,NO2]
-
-# Trim domain
-left = 40
-right = 20
-top=95
-bottom=20
-
-
-
-
+pollutants = [NO2]
 #%% Opening data 
 
 # Moving to dir
@@ -139,19 +136,19 @@ for pol in pollutants:
     
     # Figures
     # Average
-    legend = pol['Pollutant'] +' '+ pol['Criteria_average'] +'\n'+ pol['Unit']
+    legend = pol['Criteria_average'] + ' ' +pol['Pollutant'] +' ('+ pol['Unit'] + ')'
     #cmap = 'YlOrRd'
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","yellow","orange","red"])
     garfig.timeAverageFig(aveData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape)
     
     # Exceedence
-    legend = pol['Pollutant'] +' '+ pol['Criteria_average'] +'\n'+ 'Number of violations'
+    legend2 = pol['Criteria_average'] +' ' + pol['Pollutant'] +'\n'+ 'Number of violations'
     #cmap = 'RdPu'
-    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["yellow","red","purple"])
-    garfig.exceedanceFig(freqExcd[0,:,:],xlon,ylat,legend,cmap,borderShape)
+    cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightgray","yellow","red","purple"])
+    garfig.exceedanceFig(freqExcd[0,:,:],xlon,ylat,legend2,cmap,borderShape)
     
     # Criteria
-    legend = pol['Pollutant'] +' '+ pol['Criteria_average'] +'\n'+ pol['Unit']
+    
     cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","yellow","orange","brown"])
     #cmap = 'YlOrBr'     
     garfig.criteriaFig(aveData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape,pol['Criteria'])
@@ -161,13 +158,13 @@ for pol in pollutants:
         yearlyData = tst.yearlyAverage(datesTime,dataT)
         # Frequency of violations
         freqExcdY= tst.exceedance(yearlyData,pol['Criteria_annual'])
-        legend = pol['Pollutant'] +' '+ 'Annual average' +'\n'+ pol['Unit']
+        legend3 = 'Annual average ' + pol['Pollutant'] + '('+ pol['Unit']+')'
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","yellow","orange","red"])        
-        garfig.timeAverageFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape)
+        garfig.timeAverageFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend3,cmap,borderShape)
         # Exceedence
-        legend = pol['Pollutant'] +' '+ 'Annual average' +'\n'+ 'Number of violations'
-        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["yellow","red","purple"])
-        garfig.exceedanceFig(freqExcdY[0,:,:],xlon,ylat,legend,cmap,borderShape)
-        legend = pol['Pollutant'] +' '+ 'Annual average' +'\n'+ pol['Unit']
+        legend4 = 'Annual average ' + pol['Pollutant'] +'\n'+ 'Number of violations'
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightgray", "yellow","red","purple"])
+        garfig.exceedanceFig(freqExcdY[0,:,:],xlon,ylat,legend4,cmap,borderShape)
+        # Criteria
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","yellow","orange","brown"])    
-        garfig.criteriaFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend,cmap,borderShape,pol['Criteria'])
+        garfig.criteriaFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend3,cmap,borderShape,pol['Criteria_annual'])

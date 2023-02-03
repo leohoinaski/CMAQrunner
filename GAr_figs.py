@@ -10,7 +10,8 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 import matplotlib as mpl
 import numpy as np
-
+from shapely.geometry import Polygon, Point
+#import temporalStatistics as tst
 
 def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape):
     fig, ax = plt.subplots()
@@ -25,7 +26,7 @@ def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape):
 
     #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     norm = mpl.colors.LogNorm(vmin=data.min(), vmax=data.max())
-    cmap.set_under('white')
+    #cmap.set_under('white')
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     if data.min()<0.1:
         cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
@@ -81,15 +82,15 @@ def exceedanceFig(data,xlon,ylat,legend,cmap,borderShape):
     cmap = plt.get_cmap(cmap, 9)
     # cmap.set_under('white')
     # cmap.set_over('red')
-    bounds = np.linspace(0, data.max(), 10,dtype=int)
+    bounds = np.concatenate((np.array([0,1]),np.linspace(2, np.max([data.max(),8]), 7,dtype=int)))
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    cmap.set_under('white')
+    #cmap.set_under('white')
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     
     cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,
                         extend='both', 
                         ticks=bounds,
-                        spacing='proportional',
+                        #spacing='proportional',
                         orientation='vertical')
     
 
@@ -112,7 +113,7 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria):
     fig, ax = plt.subplots()
     cm = 1/2.54  # centimeters in inches
     fig.set_size_inches(15*cm, 10*cm)
-    cmap = plt.get_cmap(cmap,4)
+    cmap = plt.get_cmap(cmap,9)
     cmap.set_under('white')
     cmap.set_over('red')
     bounds = np.linspace(criteria*0.05, criteria, 10)
@@ -161,3 +162,27 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria):
     fig.tight_layout()
     
     return fig
+
+def criticalCityTimeSeries(data,xlon,ylat,legend,IBGE_CODE,cityShape,criteria):
+    
+    city = gpd.read_file(cityShape)
+    city.crs = "EPSG:4326"
+    s = gpd.GeoSeries(map(Point, zip(xlon.flatten(), ylat.flatten())))
+    s = gpd.GeoDataFrame(geometry=s)
+    s.crs = "EPSG:4326"
+    s.to_crs("EPSG:4326")
+    
+    cityBuffer = city[city['SIGLA_UF']=='SC'].buffer(0.02, resolution=10)
+    pointIn = cityBuffer.clip(s).explode()
+    
+    
+    
+    fig, ax = plt.subplots()
+    
+    #heatmap = ax.pcolor(xlon,ylat,aveData.max(axis=0)[0,:,:],cmap=cmap)
+    pointIn.plot(ax=ax)
+    city[city['SIGLA_UF']=='SC'].boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
+
+
+    
+    city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)

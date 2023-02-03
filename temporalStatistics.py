@@ -12,6 +12,8 @@ import pandas as pd
 import netCDF4 as nc
 from numpy.lib.stride_tricks import sliding_window_view
 import pyproj
+from shapely.geometry import Polygon
+import geopandas as gpd
 
 
 def dailyAverage (datesTime,data):
@@ -124,3 +126,17 @@ def getTime(ds,data):
     data = data[idx2Remove]
     datesTime = dd.drop_duplicates().reset_index(drop=True)
     return datesTime,data
+
+def grid2cellPolygon(x,y):
+    polygons=[]
+    print('Creating grid')
+    for ii in range(0,x.shape[0]-1):
+        for jj in range(0,y.shape[1]-1):
+            xlf = x[ii,jj]
+            xrg = x[ii,jj+1]
+            ytp = y[ii+1,jj]
+            ybt = y[ii,jj]
+            polygons.append(Polygon([(xlf,ybt), (xlf,ytp), (xrg,ytp), 
+                                     (xrg, ybt)])) 
+    grid = gpd.GeoDataFrame({'geometry':polygons})       
+    return grid
