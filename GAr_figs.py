@@ -163,26 +163,3 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria):
     
     return fig
 
-def criticalCityTimeSeries(data,xlon,ylat,legend,IBGE_CODE,cityShape,criteria):
-    
-    city = gpd.read_file(cityShape)
-    city.crs = "EPSG:4326"
-    s = gpd.GeoSeries(map(Point, zip(xlon.flatten(), ylat.flatten())))
-    s = gpd.GeoDataFrame(geometry=s)
-    s.crs = "EPSG:4326"
-    s.to_crs("EPSG:4326")
-    
-    cityBuffer = city[city['SIGLA_UF']=='SC'].buffer(0.02, resolution=10)
-    pointIn = cityBuffer.clip(s).explode()
-    
-    
-    
-    fig, ax = plt.subplots()
-    
-    #heatmap = ax.pcolor(xlon,ylat,aveData.max(axis=0)[0,:,:],cmap=cmap)
-    pointIn.plot(ax=ax)
-    city[city['SIGLA_UF']=='SC'].boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
-
-
-    
-    city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)

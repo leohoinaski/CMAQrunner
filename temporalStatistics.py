@@ -12,9 +12,9 @@ import pandas as pd
 import netCDF4 as nc
 from numpy.lib.stride_tricks import sliding_window_view
 import pyproj
-from shapely.geometry import Polygon
+from shapely.geometry import Point
 import geopandas as gpd
-
+from ismember import ismember
 
 def dailyAverage (datesTime,data):
     daily = datesTime.groupby(['year','month','day']).count()
@@ -127,16 +127,26 @@ def getTime(ds,data):
     datesTime = dd.drop_duplicates().reset_index(drop=True)
     return datesTime,data
 
-def grid2cellPolygon(x,y):
-    polygons=[]
-    print('Creating grid')
-    for ii in range(0,x.shape[0]-1):
-        for jj in range(0,y.shape[1]-1):
-            xlf = x[ii,jj]
-            xrg = x[ii,jj+1]
-            ytp = y[ii+1,jj]
-            ybt = y[ii,jj]
-            polygons.append(Polygon([(xlf,ybt), (xlf,ytp), (xrg,ytp), 
-                                     (xrg, ybt)])) 
-    grid = gpd.GeoDataFrame({'geometry':polygons})       
-    return grid
+def CityTimeSeries(data,xlon,ylat,cityShape):
+    city = gpd.read_file(cityShape)
+    city.crs = "EPSG:4326"
+    s = gpd.GeoSeries(map(Point, zip(xlon.flatten(), ylat.flatten())))
+    s = gpd.GeoDataFrame(geometry=s)
+    s.crs = "EPSG:4326"
+    s.to_crs("EPSG:4326")
+    cityBuffer = city[city['SIGLA_UF']=='SC']
+    pointIn = cityBuffer.geometry.clip(s).explode()
+    pointIn = gpd.GeoDataFrame({'geometry':pointIn}).reset_index()
+    lia, loc = ismember(np.array((s.geometry.x.astype(str),s.geometry.y.astype(str))).transpose(),
+                        np.array((pointIn.geometry.x.astype(str),pointIn.geometry.y.astype(str))).transpose(),'rows')
+    s['city']=np.nan
+    s.iloc[lia,1]=cityBuffer['CD_MUN'][pointIn['level_0'][loc]].values
+    return s
+    # test = s[lia]['city']
+    # test =cityBuffer['CD_MUN'][pointIn['level_0'][loc]].values
+    # fig, ax = plt.subplots()
+    
+    # #heatmap = ax.pcolor(xlon,ylat,aveData.max(axis=0)[0,:,:],cmap=cmap)
+    # s.plot(column='city',ax=ax)
+    # city[city['SIGLA_UF']=='SC'].boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)  
+    #city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
