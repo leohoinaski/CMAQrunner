@@ -141,8 +141,8 @@ def citiesINdomain(xlon,ylat,cities):
     cityMat = np.reshape(np.array(s.city),(xlon.shape[0],xlon.shape[1])).astype(float)
     return s,cityMat
 
-def dataINcity(aveData,cityMat,s,IBGE_CODE):
-    IBGE_CODE=4202404
+def dataINcity(aveData,datesTime,cityMat,s,IBGE_CODE):
+    #IBGE_CODE=4202404
     cityData = aveData[:,:,cityMat==IBGE_CODE]
     cityDataPoints = s[s.city.astype(float)==IBGE_CODE]
     cityData = cityData[:,0,:]
@@ -150,21 +150,7 @@ def dataINcity(aveData,cityMat,s,IBGE_CODE):
     matData[:,:,cityMat!=IBGE_CODE]=np.nan
     cityDataFrame=pd.DataFrame(cityData)
     cityDataFrame.columns = cityDataPoints.geometry.astype(str)
+    cityDataFrame['Datetime']=datesTime.datetime
+    cityDataFrame = cityDataFrame.set_index(['Datetime'])
     return cityData,cityDataPoints,cityDataFrame,matData
 
-
-.plot()
-.plot()
-
-fig, ax = plt.subplots()
-
-
-
-    # test = s[lia]['city']
-    # test =cityBuffer['CD_MUN'][pointIn['level_0'][loc]].values
-
-    
-    # heatmap = ax.pcolor(xlon,ylat,cityMat.astype(float),cmap=cmap)
-    # s.plot(column='city',ax=ax)
-    # city[city['SIGLA_UF']=='SC'].boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)  
-    # city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
