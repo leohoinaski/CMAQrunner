@@ -11,6 +11,7 @@ import geopandas as gpd
 import matplotlib as mpl
 import numpy as np
 from shapely.geometry import Polygon, Point
+from shapely import wkt
 #import temporalStatistics as tst
 
 def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape):
@@ -163,3 +164,32 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria):
     
     return fig
 
+def cityTimeSeries(cityDataFrame,matData,cities,xlon,ylat):
+    cityDataFrame.mean()
+    cityArea=cities[cities['CD_MUN']==str(IBGE_CODE)]
+    cmap = plt.get_cmap(cmap,9)    
+   
+    fig, ax = plt.subplots(1,2)
+    cm = 1/2.54  # centimeters in inches
+    fig.set_size_inches(15*cm, 10*cm)
+
+    heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[0,:,:],cmap=cmap)
+    cityArea.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax[0])
+    
+    ax[0].set_xlim([cityArea.boundary.total_bounds[0],cityArea.boundary.total_bounds[2]])
+    ax[0].set_ylim([cityArea.boundary.total_bounds[1],cityArea.boundary.total_bounds[3]])
+    
+    ax[1].fill_between(np.array(range(0,cityDataFrame.shape[0])),cityDataFrame.max(axis=1), cityDataFrame.min(axis=1),
+                     facecolor="orange", # The fill color
+                     color='blue',       # The outline color
+                     alpha=0.2)          # Transparency of the fill
+    cityDataFrame.mean(axis=1).plot(ax=ax[1])
+    fig.tight_layout()
+    ax[0].set_frame_on(False)
+    ax[0].set_xticks([])
+    ax[0].set_yticks([])
+    
+    
+    geoData = gpd.GeoDataFrame(cityDataFrame.mean(),geometry=cityDataFrame.columns.to_series().apply(wkt.loads))
+    geoData.plot(ax=ax,column=geoData.iloc[:,0])
+    

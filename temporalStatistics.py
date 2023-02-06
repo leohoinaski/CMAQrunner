@@ -127,26 +127,44 @@ def getTime(ds,data):
     datesTime = dd.drop_duplicates().reset_index(drop=True)
     return datesTime,data
 
-def CityTimeSeries(data,xlon,ylat,cityShape):
-    city = gpd.read_file(cityShape)
-    city.crs = "EPSG:4326"
+def citiesINdomain(xlon,ylat,cities):
     s = gpd.GeoSeries(map(Point, zip(xlon.flatten(), ylat.flatten())))
     s = gpd.GeoDataFrame(geometry=s)
     s.crs = "EPSG:4326"
     s.to_crs("EPSG:4326")
-    cityBuffer = city[city['SIGLA_UF']=='SC']
-    pointIn = cityBuffer.geometry.clip(s).explode()
+    pointIn = cities.geometry.clip(s).explode()
     pointIn = gpd.GeoDataFrame({'geometry':pointIn}).reset_index()
-    lia, loc = ismember(np.array((s.geometry.x.astype(str),s.geometry.y.astype(str))).transpose(),
-                        np.array((pointIn.geometry.x.astype(str),pointIn.geometry.y.astype(str))).transpose(),'rows')
+    lia, loc = ismember(np.array((s.geometry.x,s.geometry.y)).transpose(),
+                        np.array((pointIn.geometry.x,pointIn.geometry.y)).transpose(),'rows')
     s['city']=np.nan
-    s.iloc[lia,1]=cityBuffer['CD_MUN'][pointIn['level_0'][loc]].values
-    return s
+    s.iloc[lia,1]=cities['CD_MUN'][pointIn['level_0'][loc]].values
+    cityMat = np.reshape(np.array(s.city),(xlon.shape[0],xlon.shape[1])).astype(float)
+    return s,cityMat
+
+def dataINcity(aveData,cityMat,s,IBGE_CODE):
+    IBGE_CODE=4202404
+    cityData = aveData[:,:,cityMat==IBGE_CODE]
+    cityDataPoints = s[s.city.astype(float)==IBGE_CODE]
+    cityData = cityData[:,0,:]
+    matData = aveData.copy()
+    matData[:,:,cityMat!=IBGE_CODE]=np.nan
+    cityDataFrame=pd.DataFrame(cityData)
+    cityDataFrame.columns = cityDataPoints.geometry.astype(str)
+    return cityData,cityDataPoints,cityDataFrame,matData
+
+
+.plot()
+.plot()
+
+fig, ax = plt.subplots()
+
+
+
     # test = s[lia]['city']
     # test =cityBuffer['CD_MUN'][pointIn['level_0'][loc]].values
-    # fig, ax = plt.subplots()
+
     
-    # #heatmap = ax.pcolor(xlon,ylat,aveData.max(axis=0)[0,:,:],cmap=cmap)
+    # heatmap = ax.pcolor(xlon,ylat,cityMat.astype(float),cmap=cmap)
     # s.plot(column='city',ax=ax)
     # city[city['SIGLA_UF']=='SC'].boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)  
-    #city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
+    # city.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)

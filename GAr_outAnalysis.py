@@ -9,7 +9,7 @@ Created on Wed Dec  7 09:30:01 2022
 import os
 #import numpy as np
 #import matplotlib.pyplot as plt
-#import geopandas as gpd
+import geopandas as gpd
 #from datetime import datetime
 import netCDF4 as nc
 #import pandas as pd
@@ -18,10 +18,10 @@ import GAr_figs as garfig
 import matplotlib
 
 #%% INPUTS
-path = '/media/leohoinaski/HDD/SC_2019'
+path = '/media/leohoinaski/Backup'
 
-borderShape = '/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
-cityShape='/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/BR_Municipios_2020.shp'
+borderShape = '/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
+cityShape='/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/BR_Municipios_2020.shp'
 fileType='CCTM_CONC'
 
 # Trim domain
@@ -168,3 +168,9 @@ for pol in pollutants:
         # Criteria
         cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","yellow","orange","brown"])    
         garfig.criteriaFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend3,cmap,borderShape,pol['Criteria_annual'])
+
+
+    cities = gpd.read_file(cityShape)
+    cities.crs = "EPSG:4326"
+    cities = cities[cities['SIGLA_UF']=='SC']
+    tst.citiesINdomain(xlon, ylat, cities)
