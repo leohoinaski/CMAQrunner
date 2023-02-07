@@ -18,10 +18,10 @@ import GAr_figs as garfig
 import matplotlib
 
 #%% INPUTS
-path = '/media/leohoinaski/HDD/SC_2019'
+path = '/media/leohoinaski/Backup'
 
-borderShape = '/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
-cityShape='/media/leohoinaski/HDD/HospDisaggregation/Inputs/shapefiles/BR_Municipios_2020.shp'
+borderShape = '/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/Brasil.shp'
+cityShape='/media/leohoinaski/Backup/HospDisaggregation/Inputs/shapefiles/BR_Municipios_2020.shp'
 fileType='CCTM_CONC'
 
 # Trim domain

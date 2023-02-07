@@ -179,11 +179,12 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
     cities.boundary.plot(edgecolor='gray',linewidth=0.3,ax=ax[0])
     
     ax[1].fill_between(cityDataFrame.mean(axis=1).index,cityDataFrame.max(axis=1), cityDataFrame.min(axis=1),
-                     color=None,       # The outline color
-                     facecolor="Orange",
+                     color='orangered',       # The outline color
+                     facecolor="orangered",
+                     edgecolor=None,
                      alpha=0.2,label='Min-Max')          # Transparency of the fill
     ax[1].plot(cityDataFrame.mean(axis=1).index,cityDataFrame.mean(axis=1),
-               color='Orange',linewidth=1,label='Average')
+               color='orangered',linewidth=1,label='Average')
     ax[1].xaxis.set_tick_params(labelsize=7)
     ax[1].yaxis.set_tick_params(labelsize=8)
     ax[1].set_ylim([0,np.nanmax(matData)*1.1])
