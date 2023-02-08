@@ -47,6 +47,17 @@ def yearlyAverage (datesTime,data):
         yearlyData[year,:,:,:] = data[findArr,:,:,:].mean(axis=0)   
     return yearlyData
 
+def yearlySum (datesTime,data):
+    yearly = datesTime.groupby(['year']).count()
+    yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2],data.shape[3]))
+    for year in range(0,yearly.shape[0]):
+        if yearly.shape[0]>1:
+            findArr = (datesTime['year'] == yearly.index[year][0])
+        else:
+            findArr = (datesTime['year'] == yearly.index[year])
+        yearlyData[year,:,:,:] = data[findArr,:,:,:].sum(axis=0)   
+    return yearlyData
+
 def movingAverage (datesTime,data,w):
     daily = datesTime.groupby(['year','month','day']).count()
     mvAveData = np.empty((daily.shape[0],data.shape[1],data.shape[2],data.shape[3]))
