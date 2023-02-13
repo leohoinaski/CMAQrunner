@@ -5,16 +5,17 @@ Created on Fri Dec  9 17:49:55 2022
 
 @author: leohoinaski
 """
-import os
+#import os
 import numpy as np
 from datetime import datetime
 import pandas as pd
-import netCDF4 as nc
-from numpy.lib.stride_tricks import sliding_window_view
+#import netCDF4 as nc
+#from numpy.lib.stride_tricks import sliding_window_view
 import pyproj
 from shapely.geometry import Point
 import geopandas as gpd
 from ismember import ismember
+import wrf
 
 def dailyAverage (datesTime,data):
     daily = datesTime.groupby(['year','month','day']).count()
@@ -37,25 +38,46 @@ def monthlyAverage (datesTime,data):
     return monthlyData
 
 def yearlyAverage (datesTime,data):
-    yearly = datesTime.groupby(['year']).count()
-    yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2],data.shape[3]))
-    for year in range(0,yearly.shape[0]):
-        if yearly.shape[0]>1:
-            findArr = (datesTime['year'] == yearly.index[year][0])
-        else:
-            findArr = (datesTime['year'] == yearly.index[year])
-        yearlyData[year,:,:,:] = data[findArr,:,:,:].mean(axis=0)   
+    if len(data.shape)>3:
+        yearly = datesTime.groupby(['year']).count()
+        yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2],data.shape[3]))
+        for year in range(0,yearly.shape[0]):
+            if yearly.shape[0]>1:
+                findArr = (datesTime['year'] == yearly.index[year])
+            else:
+                findArr = (datesTime['year'] == yearly.index[year])
+            yearlyData[year,:,:,:] = data[findArr,:,:,:].mean(axis=0) 
+    else:
+        yearly = datesTime.groupby(['year']).count()
+        yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2]))
+        for year in range(0,yearly.shape[0]):
+            if yearly.shape[0]>1:
+                findArr = (datesTime['year'] == yearly.index[year])
+            else:
+                findArr = (datesTime['year'] == yearly.index[year])
+            yearlyData[year,:,:] = data[findArr,:,:].mean(axis=0) 
     return yearlyData
 
 def yearlySum (datesTime,data):
-    yearly = datesTime.groupby(['year']).count()
-    yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2],data.shape[3]))
-    for year in range(0,yearly.shape[0]):
-        if yearly.shape[0]>1:
-            findArr = (datesTime['year'] == yearly.index[year][0])
-        else:
-            findArr = (datesTime['year'] == yearly.index[year])
-        yearlyData[year,:,:,:] = data[findArr,:,:,:].sum(axis=0)   
+    if len(data.shape)>3:
+        yearly = datesTime.groupby(['year']).count()
+        yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2],data.shape[3]))
+        for year in range(0,yearly.shape[0]):
+            if yearly.shape[0]>1:
+                findArr = (datesTime['year'] == yearly.index[year])
+            else:
+                findArr = (datesTime['year'] == yearly.index[year])
+            yearlyData[year,:,:,:] = data[findArr,:,:,:].sum(axis=0)   
+    else:
+        yearly = datesTime.groupby(['year']).count()
+        yearlyData = np.empty((yearly.shape[0],data.shape[1],data.shape[2]))
+        for year in range(0,yearly.shape[0]):
+            if yearly.shape[0]>1:
+                findArr = (datesTime['year'] == yearly.index[year])
+            else:
+                findArr = (datesTime['year'] == yearly.index[year])
+            yearlyData[year,:,:] = data[findArr,:,:].sum(axis=0)  
+            
     return yearlyData
 
 def movingAverage (datesTime,data,w):
@@ -83,6 +105,17 @@ def datePrepCMAQ(ds):
         date.append(datetime.strptime(tf[:,0].astype(str)[ii] + (tf[:,1]/10000).astype(int).astype(str)[ii], '%Y%j%H').strftime('%Y-%m-%d %H:00:00'))
     
     date = np.array(date,dtype='datetime64[s]')
+    dates = pd.DatetimeIndex(date)
+    datesTime=pd.DataFrame()
+    datesTime['year'] = dates.year
+    datesTime['month'] = dates.month
+    datesTime['day'] = dates.day
+    datesTime['hour'] = dates.hour
+    datesTime['datetime']=dates
+    return datesTime
+
+def datePrepWRF(ds):
+    date = np.array(wrf.g_times.get_times(ds,timeidx=wrf.ALL_TIMES))
     dates = pd.DatetimeIndex(date)
     datesTime=pd.DataFrame()
     datesTime['year'] = dates.year
@@ -121,18 +154,32 @@ def eqmerc2latlon(ds,xv,yv):
 def trimBorders (data,xv,yv,left,right,top,bottom):
     if np.size(data.shape)==4:
         dataT = data[:,:,bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+        xvT = xv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+        yvT = yv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
     if np.size(data.shape)==3:
-        dataT = data[:,bottom:(data.shape[2]-top),left:(data.shape[3]-right)]   
+        dataT = data[:,bottom:(data.shape[1]-top),left:(data.shape[2]-right)]
+        xvT = xv[bottom:(data.shape[1]-top),left:(data.shape[2]-right)]
+        yvT = yv[bottom:(data.shape[1]-top),left:(data.shape[2]-right)]
     if np.size(data.shape)==2:
-        dataT = data[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+        dataT = data[bottom:(data.shape[0]-top),left:(data.shape[1]-right)]
+        xvT = xv[bottom:(data.shape[0]-top),left:(data.shape[1]-right)]
+        yvT = yv[bottom:(data.shape[0]-top),left:(data.shape[1]-right)]
     
-    xvT = xv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
-    yvT = yv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+    # xvT = xv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
+    # yvT = yv[bottom:(data.shape[2]-top),left:(data.shape[3]-right)]
     
     return dataT,xvT,yvT
+
               
 def getTime(ds,data):
     dd = datePrepCMAQ(ds)
+    idx2Remove = np.array(dd.drop_duplicates().index)
+    data = data[idx2Remove]
+    datesTime = dd.drop_duplicates().reset_index(drop=True)
+    return datesTime,data
+
+def getTimeWRF(ds,data):
+    dd = datePrepWRF(ds)
     idx2Remove = np.array(dd.drop_duplicates().index)
     data = data[idx2Remove]
     datesTime = dd.drop_duplicates().reset_index(drop=True)
@@ -154,14 +201,25 @@ def citiesINdomain(xlon,ylat,cities):
 
 def dataINcity(aveData,datesTime,cityMat,s,IBGE_CODE):
     #IBGE_CODE=4202404
-    cityData = aveData[:,:,cityMat==IBGE_CODE]
-    cityDataPoints = s[s.city.astype(float)==IBGE_CODE]
-    cityData = cityData[:,0,:]
-    matData = aveData.copy()
-    matData[:,:,cityMat!=IBGE_CODE]=np.nan
-    cityDataFrame=pd.DataFrame(cityData)
-    cityDataFrame.columns = cityDataPoints.geometry.astype(str)
-    cityDataFrame['Datetime']=datesTime.datetime
-    cityDataFrame = cityDataFrame.set_index(['Datetime'])
+    if np.size(aveData.shape)==4:
+        cityData = aveData[:,:,cityMat==IBGE_CODE]
+        cityDataPoints = s[s.city.astype(float)==IBGE_CODE]
+        cityData = cityData[:,0,:]
+        matData = aveData.copy()
+        matData[:,:,cityMat!=IBGE_CODE]=np.nan
+        cityDataFrame=pd.DataFrame(cityData)
+        cityDataFrame.columns = cityDataPoints.geometry.astype(str)
+        cityDataFrame['Datetime']=datesTime.datetime
+        cityDataFrame = cityDataFrame.set_index(['Datetime'])
+    else:
+        cityData = aveData[:,cityMat==IBGE_CODE]
+        cityDataPoints = s[s.city.astype(float)==IBGE_CODE]
+        cityData = cityData[:,:]
+        matData = aveData.copy()
+        matData[:,cityMat!=IBGE_CODE]=np.nan
+        cityDataFrame=pd.DataFrame(cityData)
+        cityDataFrame.columns = cityDataPoints.geometry.astype(str)
+        cityDataFrame['Datetime']=datesTime.datetime
+        cityDataFrame = cityDataFrame.set_index(['Datetime'])
     return cityData,cityDataPoints,cityDataFrame,matData
 

@@ -10,53 +10,55 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 import matplotlib as mpl
 import numpy as np
-from shapely.geometry import Polygon, Point
-from shapely import wkt
+#from shapely.geometry import Polygon, Point
+#from shapely import wkt
 import matplotlib.dates as mdates
 #import temporalStatistics as tst
+
 
 def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,aveTime):
     fig, ax = plt.subplots()
     cm = 1/2.54  # centimeters in inches
-    fig.set_size_inches(7.5*cm, 8*cm)
-    cmap = plt.get_cmap(cmap, 4)
+    fig.set_size_inches(15*cm, 10*cm)
+    cmap = plt.get_cmap(cmap, 6)
     # cmap.set_under('white')
     # cmap.set_over('red')
-    bounds = np.logspace(np.log10(data.min()) , np.log10(data.max()) , num=5)
+    bounds = np.logspace(np.log10(data.min()) , np.log10(data.max()) , num=7)
     #bounds = np.linspace(data.min(), data.max(), 10)
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     #norm = mpl.colors.LogNorm(vmin=data.min(), vmax=data.max())
     #cmap.set_under('white')
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     if data.min()<0.1:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal',
                             norm=norm)
     elif (data.min()>0.1) and (data.min()<1):
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal',
                             norm=norm
                             )
     elif (data.min()>=1) and (data.min()<100):  
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal',
                             norm=norm)
     else:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal',
                             norm=norm)
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
     cbar.ax.set_xlabel(legend, rotation=0,fontsize=6)
     cbar.ax.get_xaxis().labelpad = 2
     cbar.ax.tick_params(labelsize=5)
@@ -68,7 +70,8 @@ def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,aveTime):
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
-    fig.savefig(folder+'/timeAverageFig_'+pol+'_'+aveTime+'.png', format="png")
+    fig.savefig(folder+'/timeAverageFig_'+pol+'_'+aveTime+'.png',
+                format="png",bbox_inches='tight')
     return fig
 
 
@@ -84,11 +87,12 @@ def exceedanceFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,aveTime):
     #cmap.set_under('white')
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     
-    cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,
+    cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,
                         extend='both', 
                         ticks=bounds,
                         #spacing='proportional',
                         orientation='horizontal')
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
     cbar.ax.set_xlabel(legend, rotation=0,fontsize=6)
     cbar.ax.get_xaxis().labelpad = 5
     cbar.ax.tick_params(labelsize=5)
@@ -99,7 +103,8 @@ def exceedanceFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,aveTime):
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
-    fig.savefig(folder+'/exceedanceFig_'+pol+'_'+aveTime+'.png', format="png")
+    fig.savefig(folder+'/exceedanceFig_'+pol+'_'+aveTime+'.png', 
+                format="png",bbox_inches='tight')
     return fig
 
 def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria,
@@ -115,29 +120,30 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria,
     #norm = mpl.colors.Normalize(vmin=data.min(), vmax=data.max())
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     if data.min()<0.1:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal')
     elif (data.min()>0.1) and (data.min()<1):
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f", 
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f", 
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal')
     elif (data.min()>=1) and (data.min()<100):  
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f", 
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f", 
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal')
     else:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
-                            spacing='proportional',
+                            #spacing='proportional',
                             orientation='horizontal')
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
     cbar.ax.set_xlabel(legend, rotation=0,fontsize=6)
     cbar.ax.get_xaxis().labelpad = 5
     cbar.ax.tick_params(labelsize=5)
@@ -148,24 +154,70 @@ def criteriaFig(data,xlon,ylat,legend,cmap,borderShape,criteria,
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
-    fig.savefig(folder+'/criteriaFig'+pol+'_'+aveTime+'.png', format="png")
+    fig.savefig(folder+'/criteriaFig'+pol+'_'+aveTime+'.png', 
+                format="png",bbox_inches='tight')
     return fig
 
 def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
                    xlon,ylat,criteria,folder,pol,aveTime):
     cityArea=cities[cities['CD_MUN']==str(IBGE_CODE)]
-    cmap = plt.get_cmap(cmap,4)    
+    cmap = plt.get_cmap(cmap,6)    
     fig, ax = plt.subplots(1,2,gridspec_kw={'width_ratios': [1, 3]})
     cm = 1/2.54  # centimeters in inches
     fig.set_size_inches(15*cm, 7*cm)
-
-    heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[0,:,:],cmap=cmap)
-    bounds = np.logspace(np.log10(np.nanmin(matData)) , np.log10(np.nanmax(matData)) , num=4)
-    cbar = fig.colorbar(heatmap,fraction=0.07, pad=0.05,format="%.1e",
-                        extend='both', 
-                        ticks=bounds,
-                        #spacing='proportional',
-                        orientation='horizontal',ax=ax[0])
+    
+    if len(matData.shape)==4:
+        
+        if np.nanmax(matData)<1:
+            bounds = np.linspace(np.nanmin(matData),np.nanmax(matData) , num=7)
+            heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[0,:,:],cmap=cmap)
+            cbar = fig.colorbar(heatmap,fraction=0.08, pad=0.05,format="%.2f",
+                                extend='both', 
+                                ticks=bounds,
+                                #spacing='proportional',
+                                orientation='horizontal',ax=ax[0])
+        else:
+            if np.nanmin(matData)==0:
+                bounds = np.logspace(0 , np.log10(np.nanmax(matData)) , num=7)
+                if np.nanmax(matData)==0:
+                    bounds = np.logspace(0 , np.nanmax(matData) , num=7)
+            else:
+                bounds = np.logspace(np.log10(np.nanmin(matData)) , np.log10(np.nanmax(matData)) , num=7)
+            norm = mpl.colors.BoundaryNorm(bounds, cmap.N)   
+            heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[0,:,:],cmap=cmap,norm=norm)
+            cbar = fig.colorbar(heatmap,fraction=0.08, pad=0.05,format="%.2e",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',ax=ax[0],
+                            norm=norm)
+    else:
+        if np.nanmax(matData)<1:
+            bounds = np.linspace(np.nanmin(matData),np.nanmax(matData) , num=7)
+            heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[:,:],cmap=cmap)
+            cbar = fig.colorbar(heatmap,fraction=0.08, pad=0.05,format="%.2f",
+                                extend='both', 
+                                ticks=bounds,
+                                #spacing='proportional',
+                                orientation='horizontal',ax=ax[0])
+        else:
+            if np.nanmin(matData)<=0:
+                bounds = np.logspace(0 , np.log10(np.nanmax(matData)) , num=7)
+                if np.nanmax(matData)==0:
+                    bounds = np.logspace(0 , np.nanmax(matData) , num=7)
+            else:
+                bounds = np.logspace(np.log10(np.nanmin(matData)) , np.log10(np.nanmax(matData)) , num=7)
+            norm = mpl.colors.BoundaryNorm(bounds, cmap.N)   
+            heatmap = ax[0].pcolor(xlon,ylat,np.nanmean(matData,axis=0)[:,:],cmap=cmap,norm=norm)
+            cbar = fig.colorbar(heatmap,fraction=0.08, pad=0.05,format="%.2e",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',ax=ax[0],
+                            norm=norm)
+        
+        
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
     cbar.ax.set_xlabel(cityArea['NM_MUN'].to_string(index=False)+'\nAverage', rotation=0,fontsize=6)
     cbar.ax.get_xaxis().labelpad =5
     cbar.ax.tick_params(labelsize=6) 
@@ -200,20 +252,21 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
     ax[1].legend(prop={'size': 6})
     ax[1].set_ylabel(cityArea['NM_MUN'].to_string(index=False)+'\n'+legend,fontsize=6)
     fig.tight_layout()
-    fig.savefig(folder+'/cityTimeSeries_'+pol+'_'+aveTime+'.png', format="png")
+    fig.savefig(folder+'/cityTimeSeries_'+pol+'_'+aveTime+'.png', format="png",
+               bbox_inches='tight')
     return fig
         
 def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType):
     fig, ax = plt.subplots()
     cm = 1/2.54  # centimeters in inches
     fig.set_size_inches(7.5*cm, 8*cm)
-    cmap = plt.get_cmap(cmap, 4)
+    cmap = plt.get_cmap(cmap, 6)
     # cmap.set_under('white')
     # cmap.set_over('red')
     if np.nanmin(data)==0:
-        bounds = np.logspace(0 , np.log10(np.nanmax(data)) , num=5)
+        bounds = np.logspace(0 , np.log10(np.nanmax(data)) , num=7)
     else:
-        bounds = np.logspace(np.log10(np.nanmin(data)) , np.log10(np.nanmax(data)) , num=5)
+        bounds = np.logspace(np.log10(np.nanmin(data)) , np.log10(np.nanmax(data)) , num=7)
 
     #bounds = np.linspace(data.min(), data.max(), 10)
     #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
@@ -221,29 +274,28 @@ def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
     #cmap.set_under('white')
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     if data.min()<0.1:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
                             #spacing='proportional',
                             orientation='horizontal',
                             norm=norm)
     elif (data.min()>0.1) and (data.min()<1):
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
                             extend='both', 
                             ticks=bounds,
                             #spacing='proportional',
                             orientation='horizontal',
-                            norm=norm
-                            )
+                            norm=norm)
     elif (data.min()>=1) and (data.min()<100):  
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.2f",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
                             extend='both', 
                             ticks=bounds,
                             #spacing='proportional',
                             orientation='horizontal',
                             norm=norm)
     else:
-        cbar = fig.colorbar(heatmap,fraction=0.03, pad=0.02,format="%.1e",
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
                             extend='both', 
                             ticks=bounds,
                             #spacing='proportional',
@@ -252,7 +304,8 @@ def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
     cbar.ax.set_xlabel(legend, rotation=0,fontsize=6)
     cbar.ax.get_xaxis().labelpad = 2
     cbar.ax.tick_params(labelsize=5)
-    cbar.ax.minorticks_off()
+    cbar.ax.minorticks_off() 
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
     br = gpd.read_file(borderShape)
     br.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
     ax.set_xlim([xlon.min(), xlon.max()])
@@ -260,5 +313,72 @@ def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
     ax.set_xticks([])
     ax.set_yticks([])
     fig.tight_layout()
-    fig.savefig(folder+'/spatialEmissFig_'+pol+'_'+emissType+'.png', format="png")
+    fig.savefig(folder+'/spatialEmissFig_'+pol+'_'+emissType+'.png',
+                format="png",bbox_inches='tight')
+    return fig
+
+def spatialWindFig(data,U10,V10,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType):
+    fig, ax = plt.subplots()
+    cm = 1/2.54  # centimeters in inches
+    fig.set_size_inches(15*cm, 10*cm)
+    cmap = plt.get_cmap(cmap, 6)
+    # cmap.set_under('white')
+    # cmap.set_over('red')
+    if np.nanmin(data)==0:
+        bounds = np.logspace(0 , np.log10(np.nanmax(data)) , num=7)
+    else:
+        bounds = np.logspace(np.log10(np.nanmin(data)) , np.log10(np.nanmax(data)) , num=7)
+
+    #bounds = np.linspace(data.min(), data.max(), 10)
+    #norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    #cmap.set_under('white')
+    heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
+    if data.min()<0.1:
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',
+                            norm=norm)
+    elif (data.min()>0.1) and (data.min()<1):
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',
+                            norm=norm)
+    elif (data.min()>=1) and (data.min()<100):  
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.2f",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',
+                            norm=norm)
+    else:
+        cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,format="%.1e",
+                            extend='both', 
+                            ticks=bounds,
+                            #spacing='proportional',
+                            orientation='horizontal',
+                            norm=norm)
+    cbar.ax.set_xlabel(legend, rotation=0,fontsize=6)
+    cbar.ax.get_xaxis().labelpad = 2
+    cbar.ax.tick_params(labelsize=5)
+    cbar.ax.minorticks_off() 
+    cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
+    br = gpd.read_file(borderShape)
+    br.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax)
+    heatmap1 = ax.quiver(xlon[::10,::10],ylat[::10,::10],
+                        U10[::10,::10],V10[::10,::10],
+                        data[::10,::10],cmap='Greys',
+                      minshaft=1,clim=(0,6))
+    ax.set_xlim([xlon.min(), xlon.max()])
+    ax.set_ylim([ylat.min(), ylat.max()]) 
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
+    fig.tight_layout()
+    fig.savefig(folder+'/spatialEmissFig_'+pol+'_'+emissType+'.png',
+                format="png",bbox_inches='tight')
     return fig
