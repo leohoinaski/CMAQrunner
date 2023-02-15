@@ -17,14 +17,24 @@ import geopandas as gpd
 from ismember import ismember
 import wrf
 
+
 def dailyAverage (datesTime,data):
-    daily = datesTime.groupby(['year','month','day']).count()
-    dailyData = np.empty((daily.shape[0],data.shape[1],data.shape[2],data.shape[3]))
-    for day in range(0,daily.shape[0]):
-        findArr = (datesTime['year'] == daily.index[day][0]) & \
-            (datesTime['month'] == daily.index[day][1]) & \
-                (datesTime['day'] == daily.index[day][2]) 
-        dailyData[day,:,:,:] = data[findArr,:,:,:].mean(axis=0)   
+    if len(data.shape)>3:
+        daily = datesTime.groupby(['year','month','day']).count()
+        dailyData = np.empty((daily.shape[0],data.shape[1],data.shape[2],data.shape[3]))
+        for day in range(0,daily.shape[0]):
+            findArr = (datesTime['year'] == daily.index[day][0]) & \
+                (datesTime['month'] == daily.index[day][1]) & \
+                    (datesTime['day'] == daily.index[day][2]) 
+            dailyData[day,:,:,:] = data[findArr,:,:,:].mean(axis=0)   
+    else:
+        daily = datesTime.groupby(['year','month','day']).count()
+        dailyData = np.empty((daily.shape[0],data.shape[1],data.shape[2]))
+        for day in range(0,daily.shape[0]):
+            findArr = (datesTime['year'] == daily.index[day][0]) & \
+                (datesTime['month'] == daily.index[day][1]) & \
+                    (datesTime['day'] == daily.index[day][2]) 
+            dailyData[day,:,:] = data[findArr,:,:].mean(axis=0)   
     return dailyData
 
 def monthlyAverage (datesTime,data):
@@ -79,6 +89,8 @@ def yearlySum (datesTime,data):
             yearlyData[year,:,:] = data[findArr,:,:].sum(axis=0)  
             
     return yearlyData
+
+
 
 def movingAverage (datesTime,data,w):
     daily = datesTime.groupby(['year','month','day']).count()
@@ -142,13 +154,20 @@ def ioapiCoords(ds):
     xv, yv = np.meshgrid(lon,lat)
     return xv,yv,lon,lat
 
+
 def exceedance(data,criteria):
     freqExcd = np.sum(data>criteria,axis=0)
     return freqExcd
 
 def eqmerc2latlon(ds,xv,yv):
-    p = pyproj.Proj("+proj=merc +lon_0="+str(ds.P_GAM)+" +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+
+    mapstr = '+proj=merc +a=%s +b=%s +lat_ts=0 +lon_0=%s' % (
+              6370000, 6370000, ds.XCENT)
+    #p = pyproj.Proj("+proj=merc +lon_0="+str(ds.P_GAM)+" +k=1 +x_0=0 +y_0=0 +a=6370000 +b=6370000 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs")
+    p = pyproj.Proj(mapstr)
     xlon, ylat = p(xv, yv, inverse=True)
+    
+
     return xlon,ylat
 
 def trimBorders (data,xv,yv,left,right,top,bottom):
