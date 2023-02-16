@@ -18,6 +18,7 @@ import GAr_figs as garfig
 import matplotlib
 #import wrf
 
+
 #%% INPUTS
 fileType='wrfout_d02'
 path = '/media/leohoinaski/HDD/SC_2019'
@@ -82,10 +83,12 @@ metVars = [Q2,T,PATM,RAIN,PBLH,WIND]
 #metVars = [PATM]
 #%% --------------------------PROCESSING---------------------------------------
 
+print('--------------Start GAr_meteoAnalysis.py------------')
 # Moving to dir
 os.chdir(path)
 
 # Creating outputfolders
+print('Creating folders')
 figfolder=path+'/METEOfigures'
 if os.path.isdir(path+'/METEOfigures')==0:
     os.mkdir(path+'/METEOfigures')
@@ -94,32 +97,38 @@ tabsfolder=path+'/METEOtables'
 if os.path.isdir(path+'/METEOtables')==0:
     os.mkdir(path+'/METEOtables')
 
+print('Openning netCDF files')
 # Selecting files and variables
 prefixed = sorted([filename for filename in os.listdir(path) if filename.startswith(fileType)])
 
 # Opening netCDF files
 ds = nc.MFDataset(prefixed)
 
+print('Looping for each variable')
 # Looping each var
 for metVar in metVars:
-    
+    print(metVar)
     # Get coordinates 
     xv = ds['XLONG'][0,:,:]
     yv = ds['XLAT'][0,:,:]
     
     # Condition for each variable
     if metVar==RAIN:
+        print('Rain data')
         data = ds['RAINC'][:]+ds['RAINSH'][:]+ds['RAINNC'][:]
         
     elif metVar==PATM:
+        print('Pressure data')
         data = ds['P'][:,0,:,:]+ds['PB'][:,0,:,:]
         
     elif metVar==WIND:
+        print('Wind data')
         U10 = ds['U10'][:] 
         V10= ds['V10'][:]
         data =  (U10**2 + V10**2)**(1/2)
 
     else:
+        print('Other data')
         data = ds[metVar['tag']][:]
     
     # Get datesTime and removing duplicates
@@ -131,7 +140,8 @@ for metVar in metVars:
 
    # Yearly averages
     yearlyData = tst.yearlyAverage(datesTimeAll,dataT)
-    yearlySumData = tst.yearlySum(datesTimeAll,dataT)
+    dailyAverage,daily = tst.dailyAverage(datesTimeAll,dataT)
+    
     
     if metVar==WIND:
         V10,xlon,ylat= tst.trimBorders(V10,xv,yv,left,right,top,bottom)
@@ -141,7 +151,7 @@ for metVar in metVars:
         yearlyDataV10 = tst.yearlyAverage(datesTimeAll,V10)
         yearlyDataU10 = tst.yearlyAverage(datesTimeAll,U10)
     
-    # Analyzing by city
+    print('Analyzing by city')
     cities = gpd.read_file(cityShape)
     cities.crs = "EPSG:4326"
     cities = cities[cities['SIGLA_UF']=='SC']
@@ -154,6 +164,9 @@ for metVar in metVars:
     # ============================= Figures ===================================
 
     if metVar == RAIN:
+        dailyRain = dailyAverage*24
+        yearlySumData=tst.yearlySum (daily,dailyRain)
+        yearlySumData
         legend = 'Annual ' + metVar['variable'] + ' ('+ metVar['Unit']+')'
         garfig.spatialEmissFig(np.sum(yearlySumData[:,:,:],axis=0),xlon,ylat,
                                legend,metVar['cmap'],borderShape,figfolder,
@@ -175,12 +188,12 @@ for metVar in metVars:
     idxMax = np.unravel_index(np.mean(matDataAll[:,:,:],axis=0).argmax(),
                   np.mean(matDataAll[:,:,:],axis=0).shape)
     
-    # Critical city - highest average
+    print('Critical city - highest average')
     IBGE_CODEcritical=int(cityMat[idxMax])
     cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
         dataT,datesTime,cityMat,s,IBGE_CODEcritical)
     legend = metVar['variable'] + ' ('+ metVar['Unit']+')'
-    garfig.cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODEcritical,metVar['cmap'],legend,
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,metVar['cmap'],legend,
                        xlon,ylat,None,
                        figfolder,metVar['tag'],
                        '_wrfout'+'_'+str(IBGE_CODEcritical))

@@ -99,21 +99,21 @@ SO2 = {
 pollutants = [NO,CO]
 
 #%% ------------------------------PROCESSING-----------------------------------
-
+print('--------------Start GAr_emissAnalysis.py------------')
 #Looping each fileTypes
 for count, fileType in enumerate(fileTypes):
     
     # Moving to dir
     os.chdir(path[count])
-    
+    print('creating folder')
     # Creating output folders
-    figfolder=path[count]+'/EMISfigures'
-    if os.path.isdir(path[count]+'/EMISfigures')==0:
-        os.mkdir(path[count]+'/EMISfigures')
+    figfolder=path[count]+'/EMISfigures_'+emissType[count]
+    if os.path.isdir(figfolder)==0:
+        os.mkdir(figfolder)
 
-    tabsfolder=path[count]+'/EMIStables'
-    if os.path.isdir(path[count]+'/EMIStables')==0:
-        os.mkdir(path[count]+'/EMIStables')
+    tabsfolder=path[count]+'/EMIStables_'+emissType[count]
+    if os.path.isdir(tabsfolder)==0:
+        os.mkdir(tabsfolder)
     
     # Selecting files and variables
     prefixed = sorted([filename for filename in os.listdir(path[count]) if filename.startswith(fileType)])
@@ -231,7 +231,6 @@ for count, fileType in enumerate(fileTypes):
         # Saving data for each city
         for IBGE_CODE in cities['CD_MUN']:
             IBGE_CODE=int(IBGE_CODE)
-            tabsfolder=path[count]+'/EMIStables'
             if os.path.isdir(tabsfolder+'/'+pol['tag'])==0:
                 os.mkdir(tabsfolder+'/'+pol['tag'])
             cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(

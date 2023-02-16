@@ -92,9 +92,11 @@ PM25 = {
 
 pollutants = [NO2,O3,SO2,CO,PM10,PM25]
 #%% Opening data 
+print('--------------Start GAr_outAnalysis.py------------')
 
 # Moving to dir
 os.chdir(path)
+print('Creating folders')
 
 figfolder=path+'/figures'
 if os.path.isdir(path+'/figures')==0:
@@ -107,10 +109,13 @@ if os.path.isdir(path+'/tables')==0:
 # Selecting files and variables
 prefixed = sorted([filename for filename in os.listdir(path) if filename.startswith(fileType)])
 
+print('Openning netCDF files')
 # Opening netCDF files
 ds = nc.MFDataset(prefixed)
 
+print('Looping for each variable')
 for pol in pollutants:
+    print(pol)
     # Selecting variable
     if pol==PM10:
         ATOTI = ds['ASO4I'][:]+ ds['ANO3I'][:]+ ds['ANH4I'][:]+ \
@@ -171,7 +176,7 @@ for pol in pollutants:
         datesTime['datetime']=pd.to_datetime(datesTime[['year', 'month', 'day']])
     elif pol['Criteria_ave']==24:
         # Daily averages
-        aveData = tst.dailyAverage(datesTime,dataT)
+        aveData, dailyData = tst.dailyAverage(datesTime,dataT)
         datesTime = datesTime.groupby(by=['year', 'month', 'day']).size().reset_index()
         datesTime['datetime']=pd.to_datetime(datesTime[['year', 'month', 'day']])           
     # Monthly averages
@@ -228,7 +233,7 @@ for pol in pollutants:
                            cmap6,borderShape,pol['Criteria_annual'],
                            figfolder,pol['tag'],'Annual average')
     
-    # Analyzing by city
+    print('Analyzing by city')
     cities = gpd.read_file(cityShape)
     cities.crs = "EPSG:4326"
     cities = cities[cities['SIGLA_UF']=='SC']
@@ -242,9 +247,50 @@ for pol in pollutants:
     IBGE_CODEcritical=int(cityMat[idxMax])
     cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
         aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    garfig.cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
                        xlon,ylat,pol['Criteria'],
                        figfolder,pol['tag'],pol['Criteria_average'])
+    
+    # Critical city - highest average
+    IBGE_CODEcritical=4209102 # Joinville
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                       xlon,ylat,pol['Criteria'],
+                       figfolder,pol['tag'],pol['Criteria_average'])
+    
+    # Critical city - highest average
+    IBGE_CODEcritical=4205407 # Florianópolis
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                       xlon,ylat,pol['Criteria'],
+                       figfolder,pol['tag'],pol['Criteria_average'])
+    
+    # Critical city - highest average
+    IBGE_CODEcritical=4204202 # Chapeco
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                       xlon,ylat,pol['Criteria'],
+                       figfolder,pol['tag'],pol['Criteria_average'])
+    
+    # Critical city - highest average
+    IBGE_CODEcritical=4204608 # Criciuma
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                       xlon,ylat,pol['Criteria'],
+                       figfolder,pol['tag'],pol['Criteria_average'])
+    
+    # Critical city - highest average
+    IBGE_CODEcritical=4209300 # Lages
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                       xlon,ylat,pol['Criteria'],
+                       figfolder,pol['tag'],pol['Criteria_average'])
+    
     
     for IBGE_CODE in cities['CD_MUN']:
         IBGE_CODE=int(IBGE_CODE)

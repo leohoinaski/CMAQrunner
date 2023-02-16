@@ -35,7 +35,8 @@ def dailyAverage (datesTime,data):
                 (datesTime['month'] == daily.index[day][1]) & \
                     (datesTime['day'] == daily.index[day][2]) 
             dailyData[day,:,:] = data[findArr,:,:].mean(axis=0)   
-    return dailyData
+    daily=daily.reset_index()
+    return dailyData,daily
 
 def monthlyAverage (datesTime,data):
     monthly = datesTime.groupby(['year','month']).count()
