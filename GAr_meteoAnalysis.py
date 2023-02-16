@@ -25,9 +25,9 @@ path = '/media/leohoinaski/HDD/SC_2019'
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
-# path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
-# borderShape = '/home/lcqar/shapefiles/Brasil.shp'
-# cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
+path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
+borderShape = '/home/lcqar/shapefiles/Brasil.shp'
+cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
 
 # Trim domain
 left = 40
@@ -164,7 +164,7 @@ for metVar in metVars:
     # ============================= Figures ===================================
 
     if metVar == RAIN:
-        dailyRain = dailyAverage*24
+        dailyRain = dailyAverage
         yearlySumData=tst.yearlySum (daily,dailyRain)
         yearlySumData
         legend = 'Annual ' + metVar['variable'] + ' ('+ metVar['Unit']+')'
