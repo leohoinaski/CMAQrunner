@@ -38,6 +38,28 @@ def dailyAverage (datesTime,data):
     daily=daily.reset_index()
     return dailyData,daily
 
+def dailyRainWRF (datesTime,data):
+    if len(data.shape)>3:
+        daily = datesTime.groupby(['year','month','day']).count()
+        dailyData = np.empty((daily.shape[0],data.shape[1],data.shape[2],data.shape[3]))
+        for day in range(0,daily.shape[0]):
+            findArr = (datesTime['year'] == daily.index[day][0]) & \
+                (datesTime['month'] == daily.index[day][1]) & \
+                    (datesTime['day'] == daily.index[day][2]) 
+            findArr[np.where(findArr)[0][:-1]]=False
+            dailyData[day,:,:,:] = data[findArr,:,:,:] 
+    else:
+        daily = datesTime.groupby(['year','month','day']).count()
+        dailyData = np.empty((daily.shape[0],data.shape[1],data.shape[2]))
+        for day in range(0,daily.shape[0]):
+            findArr = (datesTime['year'] == daily.index[day][0]) & \
+                (datesTime['month'] == daily.index[day][1]) & \
+                    (datesTime['day'] == daily.index[day][2])
+            findArr[np.where(findArr)[0][:-1]]=False
+            dailyData[day,:,:] = data[findArr,:,:] 
+    daily=daily.reset_index()
+    return dailyData,daily
+
 def monthlyAverage (datesTime,data):
     monthly = datesTime.groupby(['year','month']).count()
     monthlyData = np.empty((monthly.shape[0],data.shape[1],data.shape[2],data.shape[3]))

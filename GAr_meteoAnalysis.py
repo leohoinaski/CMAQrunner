@@ -25,9 +25,9 @@ path = '/media/leohoinaski/HDD/SC_2019'
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
-path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
-borderShape = '/home/lcqar/shapefiles/Brasil.shp'
-cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
+# path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
+# borderShape = '/home/lcqar/shapefiles/Brasil.shp'
+# cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
 
 # Trim domain
 left = 40
@@ -35,26 +35,28 @@ right = 20
 top=95
 bottom=20
 
+year=2019
+
 #%% List of variables and definitions
 Q2 = {
   "variable": "Specific Humidity",
   "Unit": '$kg.kg^{-1}$',
   "tag":'Q2',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightgray","royalblue","royalblue"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","royalblue","royalblue"])
 }
 
 RAIN = {
   "variable": "Precipitation",
   "Unit": 'mm',
   "tag":'RAIN',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightblue","aqua","blue"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightblue","aqua","blue"])
 }
 
 PATM = {
   "variable": "Pressure",
   "Unit": 'Pa',
   "tag":'PATM',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","moccasin","burlywood","firebrick"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["moccasin","burlywood","firebrick"])
 }
 
 
@@ -62,7 +64,7 @@ T = {
   "variable": "Temperature",
   "Unit": 'K',
   "tag":'T2',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightyellow","gold","red"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightyellow","gold","red"])
 }
 
 
@@ -70,14 +72,14 @@ PBLH = {
   "variable": "Planetary Boundary Layer Height",
   "Unit": 'm',
   "tag":'PBLH',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightgray","turquoise","navy"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","turquoise","navy"])
 }
 
 WIND = {
   "variable": "Wind Speed",
   "Unit": '$m.s^{-1}$',
   "tag":'WIND',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","lightgray","cyan","purple"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","cyan","purple"])
 }
 metVars = [Q2,T,PATM,RAIN,PBLH,WIND]
 #metVars = [PATM]
@@ -91,11 +93,13 @@ os.chdir(path)
 print('Creating folders')
 figfolder=path+'/METEOfigures'
 if os.path.isdir(path+'/METEOfigures')==0:
-    os.mkdir(path+'/METEOfigures')
+    os.rmdir(figfolder)
+    os.mkdir(figfolder)
 
 tabsfolder=path+'/METEOtables'
 if os.path.isdir(path+'/METEOtables')==0:
-    os.mkdir(path+'/METEOtables')
+    os.rmdir(tabsfolder)
+    os.mkdir(tabsfolder)
 
 print('Openning netCDF files')
 # Selecting files and variables
@@ -134,6 +138,12 @@ for metVar in metVars:
     # Get datesTime and removing duplicates
     datesTime, data = tst.getTimeWRF(ds,data)
     datesTimeAll = datesTime.copy()
+    datesTime = datesTime[datesTime.year==year]
+    
+    if len(data.shape)>3:
+        data=data[datesTime.year==year,:,:,:]
+    else:
+        data=data[datesTime.year==year,:,:]
     
     # Trim borders left/right/bottom/top
     dataT,xlon,ylat= tst.trimBorders(data,xv,yv,left,right,top,bottom)
@@ -145,9 +155,9 @@ for metVar in metVars:
     
     if metVar==WIND:
         V10,xlon,ylat= tst.trimBorders(V10,xv,yv,left,right,top,bottom)
-        datesTime, V10 = tst.getTimeWRF(ds,V10)
+        dd, V10 = tst.getTimeWRF(ds,V10)
         U10,xlon,ylat= tst.trimBorders(U10,xv,yv,left,right,top,bottom)
-        datesTime, U10 = tst.getTimeWRF(ds,U10)
+        dd, U10 = tst.getTimeWRF(ds,U10)
         yearlyDataV10 = tst.yearlyAverage(datesTimeAll,V10)
         yearlyDataU10 = tst.yearlyAverage(datesTimeAll,U10)
     
@@ -164,24 +174,25 @@ for metVar in metVars:
     # ============================= Figures ===================================
 
     if metVar == RAIN:
-        dailyRain = dailyAverage
+        dailyRain,daily=tst.dailyRainWRF(datesTime,dataT)
+        #dailyRain = dailyAverage.copy()
         yearlySumData=tst.yearlySum (daily,dailyRain)
-        yearlySumData
+        #yearlySumData
         legend = 'Annual ' + metVar['variable'] + ' ('+ metVar['Unit']+')'
-        garfig.spatialEmissFig(np.sum(yearlySumData[:,:,:],axis=0),xlon,ylat,
+        garfig.spatialMeteoFig(yearlySumData[0,:,:],xlon,ylat,
                                legend,metVar['cmap'],borderShape,figfolder,
                                metVar['tag'],'wrfout')
     elif metVar == WIND:
         legend = 'Annual average of ' + metVar['variable'] + ' ('+ metVar['Unit']+')'
-        garfig.spatialWindFig(np.sum(yearlyData[:,:,:],axis=0),
-                               np.sum(yearlyDataU10[:,:,:],axis=0),
-                               np.sum(yearlyDataV10[:,:,:],axis=0),
+        garfig.spatialWindFig(yearlyData[0,:,:],
+                               yearlyDataU10[0,:,:],
+                               yearlyDataV10[0,:,:],
                                xlon,ylat,
                                legend,metVar['cmap'],borderShape,figfolder,
                                metVar['tag'],'wrfout')
     else :
         legend = 'Annual average of ' + metVar['variable'] + ' ('+ metVar['Unit']+')'
-        garfig.spatialEmissFig(np.sum(yearlyData[:,:,:],axis=0),xlon,ylat,
+        garfig.spatialMeteoFig(yearlyData[0,:,:],xlon,ylat,
                                legend,metVar['cmap'],borderShape,figfolder,
                                metVar['tag'],'wrfout')
     

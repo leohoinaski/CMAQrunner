@@ -28,7 +28,7 @@ path = ['/media/leohoinaski/HDD/SC_2019',
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
-# fileTypes=['BRAVESdatabase2CMAQ','MEGANv31.SC_2019','FINNv1.5','IND2>
+# fileTypes=['BRAVESdatabase2CMAQ','MEGANv31','FINNv1.5','IND2CMAQ_']
 # emissType=['Vehicular', 'Biogenic', 'Fire', 'Indutrial']
 # path = ['/home/artaxo/CMAQ_REPO/PREP/emis/BRAVES_database/Outputs/SC_2019',
 #         '/home/artaxo/CMAQ_REPO/PREP/emis/MEGAN/MEGANv3.21/Output',
@@ -38,10 +38,10 @@ cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 # cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
 
 
-cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","orange","purple"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","yellow","green"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","orange","red"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","gray","brown"])]
+cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","crimson","purple"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","lightgreen","darkgreen"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","gold","red"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","salmon","darkred"])]
 
 # Trim domain
 left = 40
@@ -53,26 +53,26 @@ bottom=20
 
 NO2 = {
   "Pollutant": "$NO_{2}$",
-  "Unit": '$mol.year^{-1}$',
+  "Unit": '$mol.s{-1}$',
   "tag":'NO2',
 }
 
 NO = {
   "Pollutant": "NO",
-  "Unit": '$mol.year^{-1}$',
+  "Unit": '$mol.s^{-1}$',
   "tag":'NO',
 }
 
 CO = {
   "Pollutant": "CO",
-  "Unit": '$mol.year^{-1}$',
+  "Unit": '$mol.s^{-1}$',
   "tag":'CO',
 }
 
 
 SO2 = {
   "Pollutant": "$SO_{2}$",
-  "Unit": '$mol.year^{-1}$',
+  "Unit": '$mol.s^{-1}$',
   "tag":'SO2'
 }
 
@@ -156,7 +156,7 @@ for count, fileType in enumerate(fileTypes):
         # ============================Figures==================================
         
         # Spatial distribution
-        legend = 'Annual '+emissType[count]+' emission of ' + pol['Pollutant'] + ' ('+ pol['Unit']+')'
+        legend = 'Annual '+emissType[count]+' emission of ' + pol['Pollutant'] + ' ('+'$mol.year^{-1}$'+')'
         garfig.spatialEmissFig(yearlyData[0,:,:],xlon,ylat,
                                legend,cmap[count],borderShape,figfolder,
                                pol['tag'],emissType[count])
