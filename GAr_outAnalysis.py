@@ -238,7 +238,7 @@ for pol in pollutants:
         # Frequency of violations
         freqExcdY= tst.exceedance(yearlyData,pol['Criteria_annual'])
         legend3 = 'Annual average ' + pol['Pollutant'] + '('+ pol['Unit']+')'
-        cmap4 = matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","gold","crimson","darkred"])        
+        cmap4 = matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","crimson","darkred"])        
         garfig.timeAverageFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend3,
                               cmap4,borderShape,
                               figfolder,pol['tag'],'Annual average')

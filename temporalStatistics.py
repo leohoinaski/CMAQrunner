@@ -45,7 +45,8 @@ def dailyRainWRF (datesTime,data):
         for day in range(0,daily.shape[0]):
             findArr = (datesTime['year'] == daily.index[day][0]) & \
                 (datesTime['month'] == daily.index[day][1]) & \
-                    (datesTime['day'] == daily.index[day][2]) 
+                    (datesTime['day'] == daily.index[day][2])
+            #findArr=findArr.reset_index()        
             findArr[np.where(findArr)[0][:-1]]=False
             dailyData[day,:,:,:] = data[findArr,:,:,:] 
     else:

@@ -32,14 +32,16 @@ def timeAverageFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,aveTime):
     cm = 1/2.54  # centimeters in inches
     fig.set_size_inches(15*cm, 10*cm)
     #cmap = plt.get_cmap(cmap, 6)
-    bounds = np.array([np.percentile(data[data>0],3),
+    bounds = np.array([np.percentile(data[data>0],1),
+                       np.percentile(data[data>0],5),
                        np.percentile(data[data>0],10),
                         np.percentile(data[data>0],25),
                         np.percentile(data[data>0],50),
                         np.percentile(data[data>0],75),
+                        np.percentile(data[data>0],90),
                         np.percentile(data[data>0],95),
-                        np.percentile(data[data>0],97),
-                        np.percentile(data[data>0],99.9)])
+                        np.percentile(data[data>0],99),
+                        np.percentile(data[data>0],100)])
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,
@@ -164,7 +166,7 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
                                  np.percentile(aveFigData[aveFigData>0],25),
                                  np.percentile(aveFigData[aveFigData>0],50),
                                  np.percentile(aveFigData[aveFigData>0],75),
-                                 np.percentile(aveFigData[aveFigData>0],93),
+                                 np.percentile(aveFigData[aveFigData>0],97),
                                  np.percentile(aveFigData[aveFigData>0],99.9)])
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         heatmap = ax[0].pcolor(xlon,ylat,aveFigData,cmap=cmap,norm=norm)
@@ -208,7 +210,7 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
         ax[1].xaxis.set_tick_params(labelsize=6)
         ax[1].yaxis.set_tick_params(labelsize=6)
         ax[1].set_ylim([np.nanmin(matData)*0.95,np.nanmax(matData)*1.05])
-        ax[1].set_xlim([np.min(cityDataFrame.mean(axis=1).index),np.nanmax(cityDataFrame.mean(axis=1).index)])
+        ax[1].set_xlim([cityDataFrame.index.min(),cityDataFrame.index.max()])
         ax[1].xaxis.set_major_locator(mdates.MonthLocator(interval=1))
         # set formatter
         if criteria!=None:
@@ -245,7 +247,7 @@ def cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
                                  np.percentile(aveFigData[aveFigData>0],25),
                                  np.percentile(aveFigData[aveFigData>0],50),
                                  np.percentile(aveFigData[aveFigData>0],75),
-                                 np.percentile(aveFigData[aveFigData>0],93),
+                                 np.percentile(aveFigData[aveFigData>0],97),
                                  np.percentile(aveFigData[aveFigData>0],99.9)])
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         # print(bounds)
@@ -288,7 +290,9 @@ def cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
         ax[1].xaxis.set_tick_params(labelsize=6)
         ax[1].yaxis.set_tick_params(labelsize=6)
         ax[1].set_ylim([np.nanmin(matData)*0.95,np.nanmax(matData)*1.05])
-        ax[1].set_xlim([np.nanmin(cityDataFrame.mean(axis=1).index),np.nanmax(cityDataFrame.mean(axis=1).index)])
+        #print(np.nanmin(cityDataFrame.index))
+        #print(np.nanmax(cityDataFrame.index))
+        ax[1].set_xlim([cityDataFrame.index.min(),cityDataFrame.index.max()])
         ax[1].xaxis.set_major_locator(mdates.MonthLocator(interval=1))
         # set formatter
         if criteria!=None:
@@ -307,19 +311,21 @@ def cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
 def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType):
     fig, ax = plt.subplots()
     cm = 1/2.54  # centimeters in inches
-    fig.set_size_inches(7.5*cm, 8*cm)
+    fig.set_size_inches(15*cm, 10*cm)
     #cmap = plt.get_cmap(cmap, 6)
     #cmap.set_under('white')
     # cmap.set_over('red')
     print(str(data.min())+'--'+str(data.max()))
-    bounds = np.array([np.percentile(data[data>0],3),
+    bounds = np.array([np.percentile(data[data>0],1),
+                       np.percentile(data[data>0],5),
                        np.percentile(data[data>0],10),
                         np.percentile(data[data>0],25),
                         np.percentile(data[data>0],50),
                         np.percentile(data[data>0],75),
+                        np.percentile(data[data>0],90),
                         np.percentile(data[data>0],95),
-                        np.percentile(data[data>0],97),
-                        np.percentile(data[data>0],99.9)])
+                        np.percentile(data[data>0],99),
+                        np.percentile(data[data>0],100)])
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     #bounds=np.linspace(np.nanmax(data)*0.05,np.nanmax(data),num=5)
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
@@ -356,17 +362,19 @@ def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
 def spatialMeteoFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType):
     fig, ax = plt.subplots()
     cm = 1/2.54  # centimeters in inches
-    fig.set_size_inches(7.5*cm, 8*cm)
+    fig.set_size_inches(15*cm, 10*cm)
     cmap = plt.get_cmap(cmap, 6)
     #cmap.set_under('white')
-    bounds = np.array([np.percentile(data[data>0],3),
+    bounds = np.array([np.percentile(data[data>0],1),
+                       np.percentile(data[data>0],5),
                        np.percentile(data[data>0],10),
                         np.percentile(data[data>0],25),
                         np.percentile(data[data>0],50),
                         np.percentile(data[data>0],75),
+                        np.percentile(data[data>0],90),
                         np.percentile(data[data>0],95),
-                        np.percentile(data[data>0],97),
-                        np.percentile(data[data>0],99.9)])
+                        np.percentile(data[data>0],99),
+                        np.percentile(data[data>0],100)])
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,
@@ -407,14 +415,16 @@ def spatialWindFig(data,U10,V10,xlon,ylat,legend,cmap,borderShape,folder,pol,emi
     cmap = plt.get_cmap(cmap, 6)
     #cmap.set_under('white')
     # cmap.set_over('red')
-    bounds = np.array([np.percentile(data[data>0],3),
+    bounds = np.array([np.percentile(data[data>0],1),
+                       np.percentile(data[data>0],5),
                        np.percentile(data[data>0],10),
                         np.percentile(data[data>0],25),
                         np.percentile(data[data>0],50),
                         np.percentile(data[data>0],75),
+                        np.percentile(data[data>0],90),
                         np.percentile(data[data>0],95),
-                        np.percentile(data[data>0],97),
-                        np.percentile(data[data>0],99.9)])
+                        np.percentile(data[data>0],99),
+                        np.percentile(data[data>0],100)])
     norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
     heatmap = ax.pcolor(xlon,ylat,data,cmap=cmap,norm=norm)
     cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,

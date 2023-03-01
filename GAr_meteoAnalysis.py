@@ -29,6 +29,12 @@ path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
 borderShape = '/home/lcqar/shapefiles/Brasil.shp'
 cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
 
+# path = '/media/leohoinaski/Backup/SC_2019'
+# borderShape = '/media/leohoinaski/Backup/shapefiles/Brasil.shp'
+# cityShape='/media/leohoinaski/Backup/shapefiles/BR_Municipios_2020.shp'
+
+
+
 # Trim domain
 left = 40
 right = 20
@@ -142,7 +148,7 @@ for metVar in metVars:
     # Get datesTime and removing duplicates
     datesTime, data = tst.getTimeWRF(ds,data)
     datesTimeAll = datesTime.copy()
-    datesTime = datesTime[datesTime.year==year]
+    datesTime = datesTime[datesTime.year==year].reset_index(drop=True)
     
     if len(data.shape)>3:
         data=data[datesTimeAll.year==year,:,:,:]
