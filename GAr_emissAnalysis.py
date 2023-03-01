@@ -15,7 +15,7 @@ import netCDF4 as nc
 import temporalStatistics as tst
 import GAr_figs as garfig
 import matplotlib
-
+import shutil
 #%% INPUTS
 
 fileTypes=['BRAVESdatabase2CMAQ','MEGANv31','FINNv1.5','IND2CMAQ_']
@@ -28,14 +28,14 @@ path = ['/media/leohoinaski/HDD/SC_2019',
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
-# fileTypes=['BRAVESdatabase2CMAQ','MEGANv31','FINNv1.5','IND2CMAQ_']
-# emissType=['Vehicular', 'Biogenic', 'Fire', 'Indutrial']
-# path = ['/home/artaxo/CMAQ_REPO/PREP/emis/BRAVES_database/Outputs/SC_2019',
-#         '/home/artaxo/CMAQ_REPO/PREP/emis/MEGAN/MEGANv3.21/Output',
-#         '/home/artaxo/CMAQ_REPO/PREP/emis/finn2cmaq-master/hourly/2019',
-#         '/home/artaxo/CMAQ_REPO/PREP/emis/IND_inventory/Outputs/SC_2019']
-# borderShape = '/home/artaxo/shapefiles/Brasil.shp'
-# cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
+fileTypes=['BRAVESdatabase2CMAQ','MEGANv31','FINNv1.5','IND2CMAQ_']
+emissType=['Vehicular', 'Biogenic', 'Fire', 'Indutrial']
+path = ['/home/artaxo/CMAQ_REPO/PREP/emis/BRAVES_database/Outputs/SC_2019',
+        '/home/artaxo/CMAQ_REPO/PREP/emis/MEGAN/MEGANv3.21/Output',
+        '/home/artaxo/CMAQ_REPO/PREP/emis/finn2cmaq-master/hourly/2019',
+        '/home/artaxo/CMAQ_REPO/PREP/emis/IND_inventory/Outputs/SC_2019']
+borderShape = '/home/artaxo/shapefiles/Brasil.shp'
+cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
 
 
 cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","crimson","purple"]),
@@ -110,9 +110,15 @@ for count, fileType in enumerate(fileTypes):
     figfolder=path[count]+'/EMISfigures_'+emissType[count]
     if os.path.isdir(figfolder)==0:
         os.mkdir(figfolder)
-
+    else:
+        shutil.rmtree(figfolder)
+        os.mkdir(figfolder)
+        
     tabsfolder=path[count]+'/EMIStables_'+emissType[count]
     if os.path.isdir(tabsfolder)==0:
+        os.mkdir(tabsfolder)
+    else:
+        shutil.rmtree(tabsfolder)
         os.mkdir(tabsfolder)
     
     # Selecting files and variables

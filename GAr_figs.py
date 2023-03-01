@@ -278,17 +278,17 @@ def cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
         cityArea.boundary.plot(edgecolor='black',linewidth=0.5,ax=ax[0])
         cities.boundary.plot(edgecolor='gray',linewidth=0.3,ax=ax[0])
         
-        ax[1].fill_between(cityDataFrame.mean(axis=1).index,cityDataFrame.max(axis=1), cityDataFrame.min(axis=1),
+        ax[1].fill_between(cityDataFrame.mean(axis=1).index,np.nanmax(cityDataFrame,axis=1), np.nanmin(cityDataFrame,axis=1),
                          color=cmap(0.8),       # The outline color
                          facecolor=cmap(0.8),
                          edgecolor=None,
                          alpha=0.2,label='Min-Max')          # Transparency of the fill
-        ax[1].plot(cityDataFrame.mean(axis=1).index,cityDataFrame.mean(axis=1),
+        ax[1].plot(cityDataFrame.mean(axis=1).index,np.nanmean(cityDataFrame,axis=1),
                    color=cmap(0.8),linewidth=1,label='Average')
         ax[1].xaxis.set_tick_params(labelsize=6)
         ax[1].yaxis.set_tick_params(labelsize=6)
         ax[1].set_ylim([np.nanmin(matData)*0.95,np.nanmax(matData)*1.05])
-        ax[1].set_xlim([np.min(cityDataFrame.mean(axis=1).index),np.nanmax(cityDataFrame.mean(axis=1).index)])
+        ax[1].set_xlim([np.nanmin(cityDataFrame.mean(axis=1).index),np.nanmax(cityDataFrame.mean(axis=1).index)])
         ax[1].xaxis.set_major_locator(mdates.MonthLocator(interval=1))
         # set formatter
         if criteria!=None:

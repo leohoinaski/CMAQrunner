@@ -17,7 +17,7 @@ import temporalStatistics as tst
 import GAr_figs as garfig
 import matplotlib
 #import wrf
-
+import shutil
 
 #%% INPUTS
 fileType='wrfout_d02'
@@ -25,9 +25,9 @@ path = '/media/leohoinaski/HDD/SC_2019'
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
-# path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
-# borderShape = '/home/lcqar/shapefiles/Brasil.shp'
-# cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
+path = '/home/lcqar/CMAQ_REPO/data/WRFout/SC/2019'
+borderShape = '/home/lcqar/shapefiles/Brasil.shp'
+cityShape='/home/lcqar/shapefiles/BR_Municipios_2020.shp'
 
 # Trim domain
 left = 40
@@ -93,12 +93,16 @@ os.chdir(path)
 print('Creating folders')
 figfolder=path+'/METEOfigures'
 if os.path.isdir(path+'/METEOfigures')==0:
-    os.rmdir(figfolder)
+    os.mkdir(figfolder)
+else:
+    shutil.rmtree(figfolder)
     os.mkdir(figfolder)
 
 tabsfolder=path+'/METEOtables'
 if os.path.isdir(path+'/METEOtables')==0:
-    os.rmdir(tabsfolder)
+    os.mkdir(tabsfolder)
+else:
+    shutil.rmtree(tabsfolder)
     os.mkdir(tabsfolder)
 
 print('Openning netCDF files')
@@ -141,16 +145,16 @@ for metVar in metVars:
     datesTime = datesTime[datesTime.year==year]
     
     if len(data.shape)>3:
-        data=data[datesTime.year==year,:,:,:]
+        data=data[datesTimeAll.year==year,:,:,:]
     else:
-        data=data[datesTime.year==year,:,:]
+        data=data[datesTimeAll.year==year,:,:]
     
     # Trim borders left/right/bottom/top
     dataT,xlon,ylat= tst.trimBorders(data,xv,yv,left,right,top,bottom)
 
    # Yearly averages
-    yearlyData = tst.yearlyAverage(datesTimeAll,dataT)
-    dailyAverage,daily = tst.dailyAverage(datesTimeAll,dataT)
+    yearlyData = tst.yearlyAverage(datesTime,dataT)
+    dailyAverage,daily = tst.dailyAverage(datesTime,dataT)
     
     
     if metVar==WIND:
@@ -158,8 +162,8 @@ for metVar in metVars:
         dd, V10 = tst.getTimeWRF(ds,V10)
         U10,xlon,ylat= tst.trimBorders(U10,xv,yv,left,right,top,bottom)
         dd, U10 = tst.getTimeWRF(ds,U10)
-        yearlyDataV10 = tst.yearlyAverage(datesTimeAll,V10)
-        yearlyDataU10 = tst.yearlyAverage(datesTimeAll,U10)
+        yearlyDataV10 = tst.yearlyAverage(datesTime,V10)
+        yearlyDataU10 = tst.yearlyAverage(datesTime,U10)
     
     print('Analyzing by city')
     cities = gpd.read_file(cityShape)

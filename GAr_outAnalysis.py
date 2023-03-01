@@ -16,6 +16,7 @@ import pandas as pd
 import temporalStatistics as tst
 import GAr_figs as garfig
 import matplotlib
+import shutil
 
 #%% INPUTS
 path = '/media/leohoinaski/HDD/SC_2019'
@@ -23,9 +24,9 @@ borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 fileType='CCTM_CONC'
 
-# path = '/home/artaxo/CMAQ_REPO/data/output_CCTM_v532_gcc_SC_2019'
-# borderShape = '/home/artaxo/shapefiles/Brasil.shp'
-# cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
+path = '/home/artaxo/CMAQ_REPO/data/output_CCTM_v532_gcc_SC_2019'
+borderShape = '/home/artaxo/shapefiles/Brasil.shp'
+cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
 
 # path = '/media/leohoinaski/HDD/BR_2019'
 # borderShape = '/media/leohoinaski/HDD/shapefiles/SouthAmerica.shp'
@@ -115,9 +116,15 @@ print('Creating folders')
 figfolder=path+'/CMAQfigures'
 if os.path.isdir(figfolder)==0:
     os.mkdir(figfolder)
+else:
+    shutil.rmtree(figfolder)
+    os.mkdir(figfolder)
 
 tabsfolder=path+'/CMAQtables'
 if os.path.isdir(tabsfolder)==0:
+    os.mkdir(tabsfolder)
+else:
+    shutil.rmtree(tabsfolder)
     os.mkdir(tabsfolder)
 
 # Selecting files and variables
@@ -231,7 +238,7 @@ for pol in pollutants:
         # Frequency of violations
         freqExcdY= tst.exceedance(yearlyData,pol['Criteria_annual'])
         legend3 = 'Annual average ' + pol['Pollutant'] + '('+ pol['Unit']+')'
-        cmap4 = matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","crimson","darkred"])        
+        cmap4 = matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","gold","crimson","darkred"])        
         garfig.timeAverageFig(yearlyData.max(axis=0)[0,:,:],xlon,ylat,legend3,
                               cmap4,borderShape,
                               figfolder,pol['tag'],'Annual average')
@@ -250,7 +257,7 @@ for pol in pollutants:
     print('Analyzing by city')
     cities = gpd.read_file(cityShape)
     cities.crs = "EPSG:4326"
-    #cities = cities[cities['SIGLA_UF']=='SC']
+    cities = cities[cities['SIGLA_UF']=='SC']
     s,cityMat = tst.citiesINdomain(xlon, ylat, cities)
     matDataAll=aveData.copy()
     matDataAll[:,:,np.isnan(cityMat)]=0
@@ -265,45 +272,45 @@ for pol in pollutants:
                        xlon,ylat,pol['Criteria'],
                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
-    # # Critical city - highest average
-    # IBGE_CODEcritical=4209102 # Joinville
-    # cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-    #     aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    # garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
-    #                    xlon,ylat,pol['Criteria'],
-    #                    figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
+    # Critical city - highest average
+    IBGE_CODEcritical=4209102 # Joinville
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                        xlon,ylat,pol['Criteria'],
+                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
-    # # Critical city - highest average
-    # IBGE_CODEcritical=4205407 # Florianópolis
-    # cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-    #     aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    # garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
-    #                    xlon,ylat,pol['Criteria'],
-    #                    figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
+    # Critical city - highest average
+    IBGE_CODEcritical=4205407 # Florianópolis
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                        xlon,ylat,pol['Criteria'],
+                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
-    # # Critical city - highest average
-    # IBGE_CODEcritical=4204202 # Chapeco
-    # cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-    #     aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    # garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
-    #                    xlon,ylat,pol['Criteria'],
-    #                    figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
+    # Critical city - highest average
+    IBGE_CODEcritical=4204202 # Chapeco
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                        xlon,ylat,pol['Criteria'],
+                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
-    # # Critical city - highest average
-    # IBGE_CODEcritical=4204608 # Criciuma
-    # cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-    #     aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    # garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
-    #                    xlon,ylat,pol['Criteria'],
-    #                    figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
+    # Critical city - highest average
+    IBGE_CODEcritical=4204608 # Criciuma
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                        xlon,ylat,pol['Criteria'],
+                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
-    # # Critical city - highest average
-    # IBGE_CODEcritical=4209300 # Lages
-    # cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-    #     aveData,datesTime,cityMat,s,IBGE_CODEcritical)
-    # garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
-    #                    xlon,ylat,pol['Criteria'],
-    #                    figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
+    # Critical city - highest average
+    IBGE_CODEcritical=4209300 # Lages
+    cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        aveData,datesTime,cityMat,s,IBGE_CODEcritical)
+    garfig.cityTimeSeriesMeteo(cityDataFrame,matData,cities,IBGE_CODEcritical,cmap,legend,
+                        xlon,ylat,pol['Criteria'],
+                        figfolder,pol['tag'],pol['Criteria_average']+'_'+str(IBGE_CODEcritical))
     
     
     for IBGE_CODE in cities['CD_MUN']:
