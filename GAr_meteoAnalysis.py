@@ -55,14 +55,14 @@ RAIN = {
   "variable": "Precipitation",
   "Unit": 'mm',
   "tag":'RAIN',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightblue","aqua","blue"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","dodgerblue","blue","darkblue"])
 }
 
 PATM = {
   "variable": "Pressure",
   "Unit": 'Pa',
   "tag":'PATM',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["moccasin","burlywood","firebrick"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","moccasin","salmon","firebrick"])
 }
 
 
@@ -70,7 +70,7 @@ T = {
   "variable": "Temperature",
   "Unit": 'K',
   "tag":'T2',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightyellow","gold","red"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","lightyellow","gold","red"])
 }
 
 
@@ -78,17 +78,17 @@ PBLH = {
   "variable": "Planetary Boundary Layer Height",
   "Unit": 'm',
   "tag":'PBLH',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","turquoise","navy"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","turquoise","navy"])
 }
 
 WIND = {
   "variable": "Wind Speed",
   "Unit": '$m.s^{-1}$',
   "tag":'WIND',
-  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["lightgray","cyan","purple"])
+  'cmap':matplotlib.colors.LinearSegmentedColormap.from_list("", ["azure","lightgray","cyan","purple"])
 }
 metVars = [Q2,T,PATM,RAIN,PBLH,WIND]
-#metVars = [PATM]
+#metVars = [RAIN]
 #%% --------------------------PROCESSING---------------------------------------
 
 print('--------------Start GAr_meteoAnalysis.py------------')
@@ -129,7 +129,7 @@ for metVar in metVars:
     # Condition for each variable
     if metVar==RAIN:
         print('Rain data')
-        data = ds['RAINC'][:]+ds['RAINSH'][:]+ds['RAINNC'][:]
+        data = ds['RAINC'][:]+ds['RAINNC'][:]
         
     elif metVar==PATM:
         print('Pressure data')

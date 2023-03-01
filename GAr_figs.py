@@ -365,7 +365,7 @@ def spatialMeteoFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
     fig.set_size_inches(15*cm, 10*cm)
     cmap = plt.get_cmap(cmap, 6)
     #cmap.set_under('white')
-    bounds = np.array([np.percentile(data[data>0],1),
+    bounds = np.array([np.percentile(data[data>0],0.1),
                        np.percentile(data[data>0],5),
                        np.percentile(data[data>0],10),
                         np.percentile(data[data>0],25),
