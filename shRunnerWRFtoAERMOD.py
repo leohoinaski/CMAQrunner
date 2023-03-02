@@ -11,18 +11,30 @@ from timezonefinder import TimezoneFinder
 import netCDF4 as nc4
 import os
 import subprocess
+import parmap
+import numpy as np
+import numpy.matlib
 
+MMIFhome='/media/leohoinaski/Backup/MMIFv4.0'
+outPath='/media/leohoinaski/Backup/SC_2019/METFILES'
+wrf_dir='/media/leohoinaski/Backup/SC_2019'
+STARTDAY='2019-01-01'
+ENDDAY='2019-01-02'
 
-
-def writeMMIFinput(MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY,ii,jj,lat,lon):  
-    
+def writeMMIFinput(ii,jj,xv,yv,MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY):  
+    #iijj = np.array(list(iijj))
+    # lat = yv[iijj[0],iijj[1]]
+    # lon = xv[iijj[0],iijj[1]]
+    print(str(ii) +' - -' + str(jj))
+    lat = yv[ii,jj]
+    lon = xv[ii,jj]
     prefixed = sorted([filename for filename in os.listdir(wrf_dir) if filename.startswith('wrfout_')])
     test_naive = pd.date_range('2019-01-01', '2019-04-07', freq='4H')
     tf = TimezoneFinder(in_memory=True)
     local_time_zone = tf.timezone_at(lng=lon, lat=lat)
     ltc = float(test_naive.tz_localize(local_time_zone).strftime('%Z')[-1])
     
-    file1 = open(MMIFhome + "/mmif.inp","w", newline='\n') 
+    file1 = open(MMIFhome + '/mmif'+str(lat)+'_'+str(lon)+'.inp',"w", newline='\n') 
     file1.write('Start  '+STARTDAY+'_00:00:00\n')
     file1.write('Stop   '+ENDDAY+'_00:00:00\n')
     file1.write('TimeZone   '+str(int(ltc))+'\n')
@@ -35,9 +47,11 @@ def writeMMIFinput(MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY,ii,jj,lat,lon):
     
     for pr in prefixed:
         file1.write('input '+wrf_dir+'/'+pr+'\n')
-    
     file1.close()
-    return MMIFhome    
+    
+    subprocess.run([MMIFhome+'/mmif ' + MMIFhome+'/mmif'+str(lat)+'_'+str(lon)+'.inp' ],shell=True)
+    os.remove(MMIFhome+'/mmif'+str(lat)+'_'+str(lon)+'.inp')
+    return
 
 
 
@@ -68,10 +82,13 @@ if __name__ == '__main__':
         os.mkdir(outPath)
 
     
-    for ii in range(6,xv.shape[0]-6):
-        for jj in range(6,xv.shape[1]-6): 
-            lat = yv[ii,jj]
-            lon = xv[ii,jj]
-            writeMMIFinput(MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY,ii,jj,lat,lon)
-            proc = subprocess.run([MMIFhome+'/mmif ' + MMIFhome+'/mmif.inp' ],shell=True)
-            
+    # for ii in range(6,xv.shape[0]-6):
+    #     for jj in range(6,xv.shape[1]-6): 
+    #         
+    #         writeMMIFinput(ii,jj,MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY,lat,lon)
+    #         #proc = subprocess.run([MMIFhome+'/mmif ' + MMIFhome+'/mmif.inp' ],shell=True)
+    ii = np.matlib.repmat(list(range(6,xv.shape[0]-6)),xv.shape[1]-6,1).flatten().tolist()
+    jj = np.matlib.repmat(list(range(6,xv.shape[1]-6)),xv.shape[0]-6,1).transpose().flatten().tolist()
+    
+    
+    parmap.starmap(writeMMIFinput,zip(ii,jj),xv,yv,MMIFhome,outPath,wrf_dir,STARTDAY,ENDDAY)

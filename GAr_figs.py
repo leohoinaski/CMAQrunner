@@ -313,7 +313,7 @@ def spatialEmissFig(data,xlon,ylat,legend,cmap,borderShape,folder,pol,emissType)
     cm = 1/2.54  # centimeters in inches
     fig.set_size_inches(15*cm, 10*cm)
     #cmap = plt.get_cmap(cmap, 6)
-    #cmap.set_under('white')
+    cmap.set_under('white')
     # cmap.set_over('red')
     print(str(data.min())+'--'+str(data.max()))
     bounds = np.array([np.percentile(data[data>0],1),

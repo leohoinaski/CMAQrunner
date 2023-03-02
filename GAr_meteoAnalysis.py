@@ -166,8 +166,10 @@ for metVar in metVars:
     if metVar==WIND:
         V10,xlon,ylat= tst.trimBorders(V10,xv,yv,left,right,top,bottom)
         dd, V10 = tst.getTimeWRF(ds,V10)
+        V10=V10[datesTimeAll.year==year,:,:]
         U10,xlon,ylat= tst.trimBorders(U10,xv,yv,left,right,top,bottom)
         dd, U10 = tst.getTimeWRF(ds,U10)
+        U10=U10[datesTimeAll.year==year,:,:]
         yearlyDataV10 = tst.yearlyAverage(datesTime,V10)
         yearlyDataU10 = tst.yearlyAverage(datesTime,U10)
     

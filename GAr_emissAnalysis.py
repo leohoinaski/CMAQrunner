@@ -38,10 +38,10 @@ borderShape = '/home/artaxo/shapefiles/Brasil.shp'
 cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
 
 
-cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","crimson","purple"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","lightgreen","darkgreen"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","gold","red"]),
-        matplotlib.colors.LinearSegmentedColormap.from_list("", ["beige","salmon","darkred"])]
+cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","crimson","purple"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","lightgreen","darkgreen"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","gold","red"]),
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","salmon","darkred"])]
 
 # Trim domain
 left = 40
@@ -102,7 +102,7 @@ pollutants = [NO,CO]
 print('--------------Start GAr_emissAnalysis.py------------')
 #Looping each fileTypes
 for count, fileType in enumerate(fileTypes):
-    
+    print(fileType)
     # Moving to dir
     os.chdir(path[count])
     print('creating folder')
@@ -129,6 +129,7 @@ for count, fileType in enumerate(fileTypes):
     
     #Looping each pollutant
     for pol in pollutants:
+        print(pol)
         # Selecting variable
         data = ds[pol['tag']][:]
         data = np.nansum(data,axis=1)
@@ -148,7 +149,7 @@ for count, fileType in enumerate(fileTypes):
         
         #Yearly averages
         yearlyData = tst.yearlySum(datesTimeAll,dataT)
-       
+        
         # Analyzing by city
         cities = gpd.read_file(cityShape)
         cities.crs = "EPSG:4326"
@@ -163,7 +164,7 @@ for count, fileType in enumerate(fileTypes):
         
         # Spatial distribution
         legend = 'Annual '+emissType[count]+' emission of ' + pol['Pollutant'] + ' ('+'$mol.year^{-1}$'+')'
-        garfig.spatialEmissFig(yearlyData[0,:,:],xlon,ylat,
+        garfig.spatialEmissFig(np.nansum(yearlyData[:,:,:],axis=0),xlon,ylat,
                                legend,cmap[count],borderShape,figfolder,
                                pol['tag'],emissType[count])
                           
@@ -234,12 +235,12 @@ for count, fileType in enumerate(fileTypes):
                               figfolder,pol['tag'],emissType[count]+
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
-        # Saving data for each city
-        for IBGE_CODE in cities['CD_MUN']:
-            IBGE_CODE=int(IBGE_CODE)
-            if os.path.isdir(tabsfolder+'/'+pol['tag'])==0:
-                os.mkdir(tabsfolder+'/'+pol['tag'])
-            cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
-                dataT,datesTime,cityMat,s,IBGE_CODE)
-            cityDataFrame.to_csv(tabsfolder+'/'+pol['tag']+'/'+pol['tag']+'_'+str(IBGE_CODE)+'.csv')
+        # # Saving data for each city
+        # for IBGE_CODE in cities['CD_MUN']:
+        #     IBGE_CODE=int(IBGE_CODE)
+        #     if os.path.isdir(tabsfolder+'/'+pol['tag'])==0:
+        #         os.mkdir(tabsfolder+'/'+pol['tag'])
+        #     cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
+        #         dataT,datesTime,cityMat,s,IBGE_CODE)
+        #     cityDataFrame.to_csv(tabsfolder+'/'+pol['tag']+'/'+pol['tag']+'_'+str(IBGE_CODE)+'.csv')
         
