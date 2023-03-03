@@ -28,6 +28,26 @@ path = ['/media/leohoinaski/HDD/SC_2019',
 borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
 cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
 
+# fileTypes=[
+#     #'BRAVESdatabase2CMAQ',
+#     #'MEGANv31',
+#     'FINNv1.5',
+#     'IND2CMAQ_']
+
+# emissType=[
+#     #'Vehicular', 
+#     #'Biogenic', 
+#     'Fire', 
+#     'Indutrial']
+
+# path = [
+#         #'/media/leohoinaski/HDD/SC_2019',
+#         #'/media/leohoinaski/HDD/SC_2019',
+#         '/media/leohoinaski/HDD/SC_2019',
+#         '/media/leohoinaski/HDD/SC_2019']
+# borderShape = '/media/leohoinaski/HDD/shapefiles/Brasil.shp'
+# cityShape='/media/leohoinaski/HDD/shapefiles/BR_Municipios_2020.shp'
+
 fileTypes=['BRAVESdatabase2CMAQ','MEGANv31','FINNv1.5','IND2CMAQ_']
 emissType=['Vehicular', 'Biogenic', 'Fire', 'Indutrial']
 path = ['/home/artaxo/CMAQ_REPO/PREP/emis/BRAVES_database/Outputs/SC_2019',
@@ -38,7 +58,8 @@ borderShape = '/home/artaxo/shapefiles/Brasil.shp'
 cityShape='/home/artaxo/shapefiles/BR_Municipios_2020.shp'
 
 
-cmap = [matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","crimson","purple"]),
+cmap = [
+        matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","crimson","purple"]),
         matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","lightgreen","darkgreen"]),
         matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","gold","red"]),
         matplotlib.colors.LinearSegmentedColormap.from_list("", ["white","beige","salmon","darkred"])]
@@ -96,7 +117,7 @@ SO2 = {
 #   "Criteria_ave": 24,
 # }
 
-pollutants = [NO,CO]
+pollutants = [CO]
 
 #%% ------------------------------PROCESSING-----------------------------------
 print('--------------Start GAr_emissAnalysis.py------------')
@@ -170,6 +191,7 @@ for count, fileType in enumerate(fileTypes):
                           
         
         # Critical city - highest average
+        print('Critical city')
         IBGE_CODEcritical=int(cityMat[idxMax])
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)
@@ -181,6 +203,7 @@ for count, fileType in enumerate(fileTypes):
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
         # Critical city - highest average
+        print('Joinville')
         IBGE_CODEcritical=4209102 # Joinville
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)
@@ -192,6 +215,7 @@ for count, fileType in enumerate(fileTypes):
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
         # Critical city - highest average
+        print('Florianópolis')
         IBGE_CODEcritical=4205407 # Florianópolis
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)
@@ -203,6 +227,7 @@ for count, fileType in enumerate(fileTypes):
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
         # Critical city - highest average
+        print('Chapecó')
         IBGE_CODEcritical=4204202 # Chapeco
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)
@@ -214,6 +239,7 @@ for count, fileType in enumerate(fileTypes):
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
         # Critical city - highest average
+        print('Criciúma')
         IBGE_CODEcritical=4204608 # Criciuma
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)
@@ -225,6 +251,7 @@ for count, fileType in enumerate(fileTypes):
                               '_emissions'+'_'+str(IBGE_CODEcritical))
         
         # Critical city - highest average
+        print('Lages')
         IBGE_CODEcritical=4209300 # Lages
         cityData,cityDataPoints,cityDataFrame,matData= tst.dataINcity(
             dataT,datesTime,cityMat,s,IBGE_CODEcritical)

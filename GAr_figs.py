@@ -150,12 +150,12 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
                    xlon,ylat,criteria,folder,pol,aveTime):
     
     if len(matData.shape)==4:
-        aveFigData= np.nanmean(matData,axis=0)[0,:,:]
+        aveFigData= np.nansum(matData,axis=0)[0,:,:]
     else:
-        aveFigData= np.nanmean(matData,axis=0)
+        aveFigData= np.nansum(matData,axis=0)
             
     if (np.nanmax(aveFigData)>0):
-            
+        print('Maximun equal to = '+str(np.nanmax(aveFigData)))    
         cityArea=cities[cities['CD_MUN']==str(IBGE_CODE)]
         #cmap = plt.get_cmap(cmap,5)    
         fig, ax = plt.subplots(1,2,gridspec_kw={'width_ratios': [1, 3]})
@@ -168,6 +168,8 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
                                  np.percentile(aveFigData[aveFigData>0],75),
                                  np.percentile(aveFigData[aveFigData>0],97),
                                  np.percentile(aveFigData[aveFigData>0],99.9)])
+        if bounds[0]==bounds[-1]:
+            bounds = np.linspace(0,np.nanmax(aveFigData),6)
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         heatmap = ax[0].pcolor(xlon,ylat,aveFigData,cmap=cmap,norm=norm)
         cbar = fig.colorbar(heatmap,fraction=0.04, pad=0.02,
@@ -187,7 +189,7 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
         #cbar.ax.set_yscale('log')
         #cbar.update_ticks()
         #cbar.ax.set_xticklabels(['{:.1e}'.format(x) for x in bounds],rotation=30)
-        cbar.ax.set_xlabel(cityArea['NM_MUN'].to_string(index=False)+'\nAverage', rotation=0,fontsize=6)
+        cbar.ax.set_xlabel(cityArea['NM_MUN'].to_string(index=False)+'\nTotal emission', rotation=0,fontsize=6)
         cbar.ax.get_xaxis().labelpad = 5
         cbar.ax.tick_params(labelsize=6) 
         
@@ -224,6 +226,9 @@ def cityTimeSeries(cityDataFrame,matData,cities,IBGE_CODE,cmap,legend,
         fig.tight_layout()
         fig.savefig(folder+'/cityTimeSeries_'+pol+'_'+aveTime+'.png', format="png",
                    bbox_inches='tight')
+    else:
+        print('------max equal to 0-------NOFIGS')
+            
     return matData.shape
         
 
