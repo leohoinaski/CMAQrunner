@@ -50,7 +50,9 @@ def staMetrics_subplots(df, columns, cmaps, shape):
                     orientation='horizontal',
                     ticks=bounds,
                     norm=norm,
-                    ax=axs[i])
+                    ax=axs[i],
+                    shrink=1, 
+                    aspect=12,)
         cbar.ax.tick_params(rotation=30)
         tick_locator = mpl.ticker.MaxNLocator(nbins=5)
         cbar.locator = tick_locator
@@ -62,6 +64,11 @@ def staMetrics_subplots(df, columns, cmaps, shape):
         #cbar.ax.locator_params(axis='both',nbins=5)
         cbar.ax.minorticks_off()
         #fig.tight_layout()
+        from matplotlib import ticker
+        # (generate plot here)
+        tick_locator = ticker.MaxNLocator(nbins=5)
+        cbar.locator = tick_locator
+        cbar.update_ticks()
     return fig
 
 def staMetrics_boxplot(df, columns,legend):
