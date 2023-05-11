@@ -18,8 +18,8 @@ import modelEval_figs as mefigs
 import modelEval_filter as mefil
 
 
-rootfolder = '/media/leohoinaski/HDD/AQD/'
-shpFolder = '/media/leohoinaski/HDD/shapefiles'
+rootfolder = '/media/leohoinaski/Backup/AQD/'
+shpFolder = '/media/leohoinaski/Backup/shapefiles'
 
 
 #Leo#folder = 'C:/Users/Leonardo.Hoinaski/Documents/CO/CO'
@@ -162,9 +162,14 @@ for pol in pollutants:
                     dfs.append(new_df)
                     #fig = mefigs.modelScatterplot(new_df,file)
                     #fig.savefig(rootfolder+'figures/Scatter_'+pol['tag']+'_'+file+'.png')
+    
+
                     
     statGeo = gpd.GeoDataFrame(statsTall, geometry=statsTall['Pixel'].apply(wkt.loads)).reset_index()
     statGeo.to_csv(rootfolder+'stats_'+pol['tag']+'.csv')
+    statGeo['UF'] = np.nan
+    for ii,stg in enumerate(statGeo.Station):
+        statGeo['UF'][ii]=stg.split('_')[1][0:2]
     
     # F============ FIGURE 6 ============
     fig = mefigs.staMetrics_subplots(statGeo,['Spearman', 'Bias', 'RMSE', 'MAE'],cmaps,shape)
@@ -173,6 +178,9 @@ for pol in pollutants:
     #mefigs.singleMetric(statGeo,shape,cmaps)
     fig = mefigs.staMetrics_boxplot(statGeo, ['Spearman', 'Bias', 'RMSE', 'MAE'],pol['Pollutant'])
     fig.savefig(rootfolder+'figures/Boxplot_'+pol['tag']+'.png',dpi=300)
+    
+    fig = mefigs.staMetrics_boxplotGrouped(statGeo, ['Spearman', 'Bias', 'RMSE', 'MAE'],pol['Pollutant'])
+    fig.savefig(rootfolder+'figures/GroupedBoxplot_'+pol['tag']+'.png',dpi=300)
 
     #============== FIGURE 7 ============
     #prefixed = [filename for filename in os.listdir(folder) if filename.startswith(statGeo.Station[0])]

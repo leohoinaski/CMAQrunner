@@ -16,22 +16,26 @@ from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 import modelEval_filter as mefil
 import matplotlib.dates as mdates
 import pandas as pd
-
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 def staMetrics_subplots(df, columns, cmaps, shape):
     
     ncols = len(columns)
+    label =[chr(x) for x in range(97, 97+ncols)]
     cm = 1/2.54  
     fig, axs = plt.subplots(2, 2, figsize=(16*cm, 18*cm), sharex=True, sharey=True)
     fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
-            hspace = 0, wspace = 0)
+            hspace = 0.1, wspace = 0)
     axs = axs.flatten()
     if cmaps is None:
         cmaps = ['Reds'] * len(columns)    
     for i, col in enumerate(columns):
         shape.plot(ax=axs[i],color='gainsboro')
         shape.boundary.plot(ax=axs[i],color='white',linewidth=.2)
+        axs[i].text(0.15, 0.4, label[i]+')', transform=axs[i].transAxes,
+                fontsize=8, va='top', ha='right')
+        
         vmin = df[col].min()
         vmax = df[col].max()
         if i==1:
@@ -45,30 +49,106 @@ def staMetrics_subplots(df, columns, cmaps, shape):
         axs[i].set_axis_off()
         #fig.colorbar(scalar_mappable, ax=axs[i], shrink=0.6)
         bounds = np.around(np.linspace(vmin, vmax,5),2)
-        norm = mpl.colors.BoundaryNorm(bounds, 5)
-        cbar=fig.colorbar(scalar_mappable,fraction=0.02, pad=0.02,
+        #norm = mpl.colors.BoundaryNorm(bounds, 5)
+        axins1 = inset_axes(
+            axs[i],
+            width="30%",  # width: 50% of parent_bbox width
+            height="2%",  # height: 5%
+            loc="lower left",
+            bbox_to_anchor=(0.05,0.3, 1,1),
+            bbox_transform=axs[i].transAxes,
+        )
+        axins1.xaxis.set_ticks_position("bottom")
+        cbar=fig.colorbar(scalar_mappable,fraction=0.02, pad=0.1,
                     orientation='horizontal',
                     ticks=bounds,
                     norm=norm,
                     ax=axs[i],
-                    shrink=1, 
-                    aspect=12,)
+                    cax=axins1,shrink=0.6)
         cbar.ax.tick_params(rotation=30)
-        tick_locator = mpl.ticker.MaxNLocator(nbins=5)
-        cbar.locator = tick_locator
-        #cbar.ax.set_xscale('log')
-        #cbar.update_ticks()
         cbar.ax.set_xlabel(col, rotation=0,fontsize=8)
         cbar.ax.get_xaxis().labelpad = 2
-        cbar.ax.tick_params(labelsize=8)
-        #cbar.ax.locator_params(axis='both',nbins=5)
+        cbar.ax.tick_params(labelsize=7)
+        cbar.ax.locator_params(axis='both',nbins=5)
         cbar.ax.minorticks_off()
         #fig.tight_layout()
-        from matplotlib import ticker
-        # (generate plot here)
-        tick_locator = ticker.MaxNLocator(nbins=5)
-        cbar.locator = tick_locator
-        cbar.update_ticks()
+    return fig
+
+
+def staMetrics_subplotsMerged(df, columns, cmaps, shape):
+    c=['gainsboro', 'gainsboro','gainsboro','gainsboro']
+    grouped = df.groupby(by='UF')
+    ncols = len(columns)
+    label =[chr(x) for x in range(97, 97+ncols)]
+    cm = 1/2.54  
+    fig, axs = plt.subplots(4, 2, figsize=(16*cm, 18*cm), sharex=True, sharey=True,
+                            gridspec_kw={'height_ratios': [6,1,6,1]})
+    fig.subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, 
+            hspace = 0, wspace = 0)
+    axs = axs.flatten()
+    if cmaps is None:
+        cmaps = ['Reds'] * len(columns)    
+    ii=0
+    for i in range(0,axs.size):
+        if (i==0) or (i==1) or (i==4) or (i==5):     
+            shape.plot(ax=axs[i],color='gainsboro')
+            shape.boundary.plot(ax=axs[i],color='white',linewidth=.2)
+            axs[i].text(0.15, 0.4, label[ii]+')', transform=axs[i].transAxes,
+                    fontsize=8, va='top', ha='right')
+            
+            vmin = df[columns[ii]].min()
+            vmax = df[columns[ii]].max()
+            if i==1:
+                norm = mpl.colors.Normalize(vmin=vmin, vmax=abs(vmin))
+            else:
+                norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
+            scalar_mappable = plt.cm.ScalarMappable(norm=norm, cmap=cmaps[ii])
+            scalar_mappable.set_array([])
+            df.plot(ax=axs[i], column=columns[ii], cmap=cmaps[ii],s=4)
+            #axs[i].set_title(col, fontsize=12)
+            axs[i].set_axis_off()
+            #fig.colorbar(scalar_mappable, ax=axs[i], shrink=0.6)
+            bounds = np.around(np.linspace(vmin, vmax,5),2)
+            #norm = mpl.colors.BoundaryNorm(bounds, 5)
+            axins1 = inset_axes(
+                axs[i],
+                width="30%",  # width: 50% of parent_bbox width
+                height="2%",  # height: 5%
+                loc="lower left",
+                bbox_to_anchor=(0.05,0.3, 1,1),
+                bbox_transform=axs[i].transAxes,
+            )
+            axins1.xaxis.set_ticks_position("bottom")
+            cbar=fig.colorbar(scalar_mappable,fraction=0.02, pad=0.1,
+                        orientation='horizontal',
+                        ticks=bounds,
+                        norm=norm,
+                        ax=axs[i],
+                        cax=axins1,shrink=0.6)
+            cbar.ax.tick_params(rotation=30)
+            cbar.ax.set_xlabel(columns[ii], rotation=0,fontsize=8)
+            cbar.ax.get_xaxis().labelpad = 2
+            cbar.ax.tick_params(labelsize=7)
+            cbar.ax.locator_params(axis='both',nbins=5)
+            cbar.ax.minorticks_off()
+            #fig.tight_layout()
+            ii=ii+1
+        else:
+            df.boxplot(column=columns[ii-1],by='UF',notch=False, patch_artist=True,
+                boxprops=dict(facecolor=c[ii-1], color='black'),
+                capprops=dict(color='black'),
+                whiskerprops=dict(color='black'),
+                flierprops=dict(color=c[ii-1], markeredgecolor='black',markersize=5),
+                medianprops=dict(color='black'),ax=axs[i],grid=False)
+            fig.texts = [] #flush the old super titles
+            axs[i].set_ylabel(columns[ii-1]+' - '+columns[ii-1], fontsize=8)
+            axs[i].xaxis.set_tick_params(labelsize=8)
+            axs[i].yaxis.set_tick_params(labelsize=8)
+            fig.suptitle("")
+            axs[i].set_title('')
+            axs[i].set_xlabel('')
+        
+                  
     return fig
 
 def staMetrics_boxplot(df, columns,legend):
@@ -99,6 +179,32 @@ def staMetrics_boxplot(df, columns,legend):
         
     return fig
 
+def staMetrics_boxplotGrouped(statGeo, columns,legend):
+    grouped = statGeo.groupby(by='UF')
+    c=['gainsboro', 'gainsboro','gainsboro','gainsboro']
+    ncols = len(columns)
+    fig, axs = plt.subplots(ncols,1,figsize=(3,4))
+    axs = axs.flatten()
+    for i, col in enumerate(columns):
+        statGeo.boxplot(column=col,by='UF',notch=False, patch_artist=True,
+            boxprops=dict(facecolor=c[i], color='black'),
+            capprops=dict(color='black'),
+            whiskerprops=dict(color='black'),
+            flierprops=dict(color=c[i], markeredgecolor='black',markersize=3),
+            medianprops=dict(color='black'),ax=axs[i],grid=False)
+    
+        fig.texts = [] #flush the old super titles
+        axs[i].set_ylabel(col+'\n'+legend, fontsize=8)
+        #axs[i].set_axis_off()
+        fig.tight_layout()
+        axs[i].xaxis.set_tick_params(labelsize=8)
+        axs[i].yaxis.set_tick_params(labelsize=8)
+        fig.suptitle("")
+        axs[i].set_title('')
+        axs[i].set_xlabel('')
+    fig.tight_layout()
+        
+    return fig
 
 def modelScatterplot(new_df,file):
     #Scatterplots
