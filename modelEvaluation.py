@@ -18,8 +18,8 @@ import modelEval_figs as mefigs
 import modelEval_filter as mefil
 
 
-rootfolder = '/media/leohoinaski/Backup/AQD/'
-shpFolder = '/media/leohoinaski/Backup/shapefiles'
+rootfolder = '/media/leohoinaski/HDD/AQD/'
+shpFolder = '/media/leohoinaski/HDD/shapefiles'
 
 
 #Leo#folder = 'C:/Users/Leonardo.Hoinaski/Documents/CO/CO'
@@ -160,8 +160,8 @@ for pol in pollutants:
                     new_df = pd.DataFrame({'Valor': obs[:, stats.index[0]]})
                     new_df[point_col] = point_df
                     dfs.append(new_df)
-                    #fig = mefigs.modelScatterplot(new_df,file)
-                    #fig.savefig(rootfolder+'figures/Scatter_'+pol['tag']+'_'+file+'.png')
+                    fig = mefigs.modelScatterplot(new_df,file)
+                    fig.savefig(rootfolder+'figures/Scatter_'+pol['tag']+'_'+file+'.png',dpi=300)
     
 
                     
@@ -175,6 +175,9 @@ for pol in pollutants:
     fig = mefigs.staMetrics_subplots(statGeo,['Spearman', 'Bias', 'RMSE', 'MAE'],cmaps,shape)
     fig.savefig(rootfolder+'figures/staMetrics_'+pol['tag']+'.png',dpi=300,
                 bbox_inches = 'tight',pad_inches = 0)
+    fig = mefigs.staMetrics_subplots_box(statGeo,['Spearman', 'Bias', 'RMSE', 'MAE'],cmaps,shape,'')
+    fig.savefig(rootfolder+'figures/staMetrics_box_'+pol['tag']+'.png',dpi=300,
+                bbox_inches = 'tight',pad_inches = 0)
     #mefigs.singleMetric(statGeo,shape,cmaps)
     fig = mefigs.staMetrics_boxplot(statGeo, ['Spearman', 'Bias', 'RMSE', 'MAE'],pol['Pollutant'])
     fig.savefig(rootfolder+'figures/Boxplot_'+pol['tag']+'.png',dpi=300)
@@ -183,9 +186,10 @@ for pol in pollutants:
     fig.savefig(rootfolder+'figures/GroupedBoxplot_'+pol['tag']+'.png',dpi=300)
 
     #============== FIGURE 7 ============
-    #prefixed = [filename for filename in os.listdir(folder) if filename.startswith(statGeo.Station[0])]
-    #dataBest=pd.read_csv(folder+'/'+prefixed[0],encoding ='latin-1')
-    #fig = mefigs.lineplotsCONC(dataBest,pol,statGeo.Pixel[0],prefixed[0])
+    prefixed = [filename for filename in os.listdir(folder) if filename.startswith(statGeo.Station[0])]
+    dataBest=pd.read_csv(folder+'/'+prefixed[0],encoding ='latin-1')
+    fig = mefigs.lineplotsCONC(dataBest,pol,statGeo.Pixel[0],prefixed[0])
+    fig.savefig(rootfolder+'figures/lineplotsCONC_'+pol['tag']+'_'+prefixed[0]+'.png',dpi=300)
     
     
     
